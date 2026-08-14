@@ -2,19 +2,19 @@
   "n_queries": 150,
   "stages": {
     "embed_query_ms": {
-      "p50": 24.59,
-      "p70": 29.66,
-      "p100": 80.76
+      "p50": 32.72,
+      "p70": 35.88,
+      "p100": 255.15
     },
     "faiss_search_ms": {
-      "p50": 0.95,
-      "p70": 1.02,
-      "p100": 2.27
+      "p50": 0.88,
+      "p70": 0.94,
+      "p100": 1.98
     },
     "retrieval_total_ms": {
-      "p50": 25.52,
-      "p70": 30.54,
-      "p100": 81.79
+      "p50": 33.65,
+      "p70": 36.73,
+      "p100": 256.16
     },
     "generation_ms": {
       "p50": 850.0,
@@ -27,9 +27,9 @@
       "p100": 600.0
     },
     "end_to_end_ms": {
-      "p50": 1085.5,
-      "p70": 1410.5,
-      "p100": 3081.8
+      "p50": 1093.7,
+      "p70": 1416.7,
+      "p100": 3256.2
     }
   },
   "note": "Retrieval-only pipeline (embed+search) meets the <200ms target; full pipeline including LLM generation and grounding check does not, since network+LLM inference dominates. Reported honestly per spec section 5."
