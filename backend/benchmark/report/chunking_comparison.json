@@ -1,0 +1,22 @@
+{
+  "semantic": {
+    "recall@5": 0.752,
+    "recall@10": 0.9005,
+    "recall@20": 0.9395
+  },
+  "fixed": {
+    "recall@5": 0.7816,
+    "recall@10": 0.9052,
+    "recall@20": 0.9556
+  },
+  "sentence_window": {
+    "recall@5": 0.7137,
+    "recall@10": 0.8703,
+    "recall@20": 0.9335
+  },
+  "recursive": {
+    "recall@5": 0.7816,
+    "recall@10": 0.9052,
+    "recall@20": 0.9556
+  }
+}

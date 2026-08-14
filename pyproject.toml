@@ -1,0 +1,10 @@
+[project]
+name = "voice-rag"
+version = "1.0.0"
+description = "Voice-enabled RAG pipeline with Sarvam STT, multi-strategy chunking, FAISS retrieval, and grounded LLM generation"
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["backend/tests"]
+pythonpath = ["."]

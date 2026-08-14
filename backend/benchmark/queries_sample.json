@@ -1,0 +1,12 @@
+[
+  {"query_id": "0", "query": "What is the Taj Mahal?"},
+  {"query_id": "1", "query": "Who built the Red Fort in Delhi?"},
+  {"query_id": "2", "query": "What is Python programming language used for?"},
+  {"query_id": "3", "query": "Where is the Taj Mahal located?"},
+  {"query_id": "4", "query": "When was the Red Fort built?"},
+  {"query_id": "5", "query": "Why was the Taj Mahal built by Shah Jahan?"},
+  {"query_id": "6", "query": "What are the main features of Python?"},
+  {"query_id": "7", "query": "Which city is known for the Taj Mahal and Agra Fort?"},
+  {"query_id": "8", "query": "Who was the fifth Mughal emperor of India?"},
+  {"query_id": "9", "query": "What was the capital of Mughal empire moved to?"}
+]
