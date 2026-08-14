@@ -9,13 +9,14 @@ Rules:
 4. When citing information, reference which passage it comes from using [Source N] markers.
 5. Do NOT make up information or use knowledge outside the provided context.
 6. If the question is ambiguous, answer the most likely interpretation based on the context.
+7. Always respond in the SAME language that the user used to ask the question (e.g. if asked in Hindi, respond in Hindi; if in Bengali, respond in Bengali; if in Spanish, respond in Spanish; if in English, respond in English).
 
 Context Passages:
 {context}
 
 User Question: {query}
 
-Provide a grounded, well-cited answer:"""
+Provide a grounded, well-cited answer in the language of the user's question:"""
 
 
 STRICT_GENERATION_PROMPT = """You are a precise question-answering assistant operating in STRICT mode. Answer the user's question using ONLY the exact information stated in the provided context passages. Do not infer, generalize, or add any information beyond what is explicitly written.
