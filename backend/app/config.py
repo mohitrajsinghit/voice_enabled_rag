@@ -22,6 +22,11 @@ class LLMProvider(str, Enum):
     GOOGLE = "google"
 
 
+class EmbeddingProvider(str, Enum):
+    LOCAL = "local"
+    LMSTUDIO = "lmstudio"
+
+
 class GroundingMode(str, Enum):
     LLM_JUDGE = "llm_judge"
     NLI = "nli"
@@ -43,7 +48,9 @@ class Settings(BaseSettings):
     anthropic_model: str = Field(default="claude-sonnet-4-6", description="Anthropic model name")
 
     # --- Embeddings ---
-    embedding_model: str = Field(default="paraphrase-multilingual-MiniLM-L12-v2", description="Sentence transformer model")
+    embedding_provider: EmbeddingProvider = Field(default=EmbeddingProvider.LOCAL, description="Embedding provider: local or lmstudio")
+    embedding_model: str = Field(default="paraphrase-multilingual-MiniLM-L12-v2", description="Local sentence transformer model")
+    lmstudio_embedding_model: str = Field(default="text-embedding-qwen3-embedding-0.6b", description="LM Studio embedding model name")
 
     # --- FAISS Index ---
     faiss_index_path: str = Field(default="./data/processed/semantic/faiss.index", description="Path to FAISS index file")

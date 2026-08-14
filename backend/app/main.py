@@ -38,10 +38,10 @@ async def lifespan(app: FastAPI):
     logger.info("Starting Voice RAG backend...")
 
     try:
-        # Eagerly load embedder model at startup (not lazily on first request)
-        embedder = get_embedder(settings.embedding_model)
-        _ = embedder.model  # Force-trigger SentenceTransformer download/load now
-        logger.info(f"Embedder preloaded: dim={embedder.dimension}")
+        # Eagerly load embedder at startup (not lazily on first request)
+        embedder = get_embedder()
+        dim = embedder.dimension
+        logger.info(f"Embedder preloaded: dim={dim} (provider={settings.embedding_provider.value})")
 
         # Load FAISS index
         index_path = settings.resolve_path(settings.faiss_index_path)
@@ -58,8 +58,7 @@ async def lifespan(app: FastAPI):
             )
             # Create empty store for graceful degradation
             import faiss
-            import numpy as np
-            empty_index = faiss.IndexFlatIP(384)
+            empty_index = faiss.IndexFlatIP(dim)
             faiss_store = FaissStore(index=empty_index, chunks=[])
             _index_loaded = False
 

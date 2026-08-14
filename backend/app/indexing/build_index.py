@@ -25,7 +25,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from backend.app.chunking.registry import get_chunker, list_strategies
-from backend.app.indexing.embedder import Embedder
+from backend.app.indexing.embedder import get_embedder
 
 
 logger = logging.getLogger(__name__)
@@ -46,7 +46,9 @@ def build_index(
     strategy: str = "semantic",
     passages_path: str | None = None,
     output_dir: str | None = None,
-    embedding_model: str = "paraphrase-multilingual-MiniLM-L12-v2",
+    embedding_model: str | None = None,
+    provider: str | None = None,
+    base_url: str | None = None,
     batch_size: int = 64,
     **chunker_kwargs,
 ) -> None:
@@ -56,7 +58,9 @@ def build_index(
         strategy: Chunking strategy name.
         passages_path: Path to passages JSONL file.
         output_dir: Output directory for index + metadata.
-        embedding_model: Sentence-transformer model name.
+        embedding_model: Embedding model name.
+        provider: "local" or "lmstudio".
+        base_url: LM Studio URL (if provider=lmstudio).
         batch_size: Embedding batch size.
         **chunker_kwargs: Additional args for the chunker.
     """
@@ -102,8 +106,8 @@ def build_index(
     chunk_texts = [c.text for c in all_chunks]
 
     # Initialize embedder and embed
-    logger.info(f"Embedding {len(chunk_texts)} chunks with {embedding_model}")
-    embedder = Embedder(model_name=embedding_model)
+    embedder = get_embedder(model_name=embedding_model, provider=provider, base_url=base_url)
+    logger.info(f"Embedding {len(chunk_texts)} chunks with provider={provider or 'default'}")
     t0 = time.time()
     embeddings = embedder.embed(chunk_texts, batch_size=batch_size)
     embed_time = time.time() - t0
@@ -163,10 +167,23 @@ def main():
     parser.add_argument("--passages-path", type=str, default=None, help="Path to passages JSONL")
     parser.add_argument("--output-dir", type=str, default=None, help="Output directory")
     parser.add_argument(
+        "--provider",
+        type=str,
+        default=None,
+        choices=["local", "lmstudio"],
+        help="Embedding provider: 'local' (sentence-transformers) or 'lmstudio'",
+    )
+    parser.add_argument(
         "--embedding-model",
         type=str,
-        default="paraphrase-multilingual-MiniLM-L12-v2",
+        default=None,
         help="Embedding model name",
+    )
+    parser.add_argument(
+        "--base-url",
+        type=str,
+        default=None,
+        help="LM Studio base URL (e.g. http://192.168.68.201:1234/v1)",
     )
     parser.add_argument("--batch-size", type=int, default=64, help="Embedding batch size")
     args = parser.parse_args()
@@ -181,6 +198,8 @@ def main():
         passages_path=args.passages_path,
         output_dir=args.output_dir,
         embedding_model=args.embedding_model,
+        provider=args.provider,
+        base_url=args.base_url,
         batch_size=args.batch_size,
     )
 
