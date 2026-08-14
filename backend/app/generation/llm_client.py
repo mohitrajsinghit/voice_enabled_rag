@@ -40,7 +40,10 @@ class LLMClient:
             model: Model name. Defaults to config.
         """
         settings = get_settings()
-        self.provider = provider or settings.llm_provider
+        prov = provider or settings.llm_provider
+        if isinstance(prov, str):
+            prov = LLMProvider(prov.lower())
+        self.provider = prov
         self.api_key = api_key
         self.base_url = base_url
         self.model = model
@@ -76,7 +79,7 @@ class LLMClient:
             self._openai_client = OpenAI(
                 base_url=self.base_url,
                 api_key="lm-studio",  # LM Studio doesn't need a real key
-                timeout=10.0,
+                timeout=30.0,
                 max_retries=1,
             )
         return self._openai_client

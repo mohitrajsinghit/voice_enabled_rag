@@ -53,22 +53,14 @@ class SemanticChunker(Chunker):
     def __init__(
         self,
         model: SentenceTransformer | None = None,
+        embedder: Any | None = None,
         model_name: str = "paraphrase-multilingual-MiniLM-L12-v2",
         similarity_percentile: float = 25.0,
         min_chunk_tokens: int = 30,
         max_chunk_tokens: int = 512,
     ):
-        """Initialize the semantic chunker.
-
-        Args:
-            model: Pre-loaded SentenceTransformer model (optional, loaded lazily).
-            model_name: Model name to load if model not provided.
-            similarity_percentile: Percentile of similarity scores below which
-                a boundary is detected. Lower = fewer splits (larger chunks).
-            min_chunk_tokens: Minimum tokens per chunk; smaller chunks get merged.
-            max_chunk_tokens: Maximum tokens per chunk; larger chunks get force-split.
-        """
         self._model = model
+        self._embedder = embedder
         self._model_name = model_name
         self.similarity_percentile = similarity_percentile
         self.min_chunk_tokens = min_chunk_tokens
@@ -162,7 +154,10 @@ class SemanticChunker(Chunker):
             ]
 
         # Embed all sentences
-        embeddings = self.model.encode(sentences, show_progress_bar=False)
+        if self._embedder is not None:
+            embeddings = self._embedder.embed(sentences, show_progress=False)
+        else:
+            embeddings = self.model.encode(sentences, show_progress_bar=False)
 
         # Compute adjacent similarities
         similarities = self._compute_similarities(embeddings)

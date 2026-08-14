@@ -180,6 +180,7 @@ class GenerateStage(PipelineStage):
         except Exception as e:
             logger.error(f"Generation failed: {e}")
             ctx.error = f"Answer generation failed: {e}"
+            ctx.generated_answer = f"⚠️ Could not generate an answer: {e}. Please check your LLM provider configuration."
             ctx.status = "error"
             ctx.should_stop = True
             return ctx
