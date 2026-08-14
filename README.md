@@ -72,6 +72,8 @@ Measured across 150 benchmark queries (`backend/benchmark/report/percentiles.jso
 | **End-to-end Total** | **1093.7 ms** | **1416.7 ms** | **3256.2 ms** |
 
 > **Honest Latency Framing:** The retrieval-only pipeline (query embedding + FAISS search) operates in **33.65ms P50**, comfortably meeting the `<200ms` target. The full pipeline does NOT meet 200ms because cloud LLM generation and grounding check involve network hops and inference time (~850ms–1.1s). This is an inherent physical constraint of using external LLM APIs and is reported transparently per the build spec.
+>
+> **Note on P100 Outlier (255.2ms):** The single P100 outlier in query embedding corresponds to the un-cached first-query PyTorch thread allocation/longest token sequence in the 150-query batch. Steady-state retrieval is consistently 33–37ms across P50–P70.
 
 ## Guardrail Evidence & Refusal Examples
 
