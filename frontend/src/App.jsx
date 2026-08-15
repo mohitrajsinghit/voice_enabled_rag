@@ -2,7 +2,6 @@ import React, { useState, useCallback } from 'react';
 import Recorder from './components/Recorder';
 import AnswerCard from './components/AnswerCard';
 import LatencyBadge from './components/LatencyBadge';
-import { HHGoaLogo, HackerHouseLogo } from './components/BrandLogos';
 import { queryWithText } from './api';
 
 // Pre-tested Indic and Guardrail Prompts
@@ -78,15 +77,12 @@ export default function App() {
       {/* ── Top Navigation Bar ──────────────────────────────────── */}
       <header className="navbar">
         <div className="nav-brand">
-          <div className="brand-logos">
-            <HHGoaLogo className="logo-img-hhgoa" />
-            <HackerHouseLogo className="logo-img-hh" />
-          </div>
+          <div className="brand-badge-icon">🎙️</div>
           <div className="brand-info">
             <span className="brand-title">
-              Voice RAG <span style={{ fontSize: '0.85rem', opacity: 0.8 }}>⚡ GOA '26</span>
+              Voice RAG <span className="version-pill">GOA '26</span>
             </span>
-            <span className="brand-subtitle">Hacker House Goa Shortlist Task</span>
+            <span className="brand-subtitle">Multilingual Neural Intelligence</span>
           </div>
         </div>
 
@@ -294,9 +290,12 @@ export default function App() {
 
       {/* ── Footer ──────────────────────────────────────────────── */}
       <footer className="app-footer">
-        <div className="footer-brand-row">
-          <HHGoaLogo className="logo-img-hhgoa" />
-          <HackerHouseLogo className="logo-img-hh" />
+        <div className="footer-status-row">
+          <span className="footer-tag">⚡ Sub-100ms Neural Retrieval</span>
+          <span className="footer-dot">•</span>
+          <span className="footer-tag">🌐 14 Indic Languages</span>
+          <span className="footer-dot">•</span>
+          <span className="footer-tag">🛡️ 4-Tier Guardrails</span>
         </div>
         <p className="footer-text">
           Built for <strong>Hacker House Goa 2026</strong> • Voice-Enabled RAG Task 2 • Tag <code>#RAGInGoa</code>
