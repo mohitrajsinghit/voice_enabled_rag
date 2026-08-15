@@ -59,13 +59,20 @@ class LocalEmbedder:
         texts: list[str],
         batch_size: int = 64,
         show_progress: bool = True,
+        is_query: bool = False,
     ) -> np.ndarray:
         """Embed a list of texts in batches."""
         if not texts:
             return np.array([])
 
+        if "e5" in self.model_name.lower():
+            prefix = "query: " if is_query else "passage: "
+            formatted_texts = [prefix + t if not t.startswith(prefix) else t for t in texts]
+        else:
+            formatted_texts = texts
+
         embeddings = self.model.encode(
-            texts,
+            formatted_texts,
             batch_size=batch_size,
             show_progress_bar=show_progress,
             convert_to_numpy=True,
@@ -75,13 +82,8 @@ class LocalEmbedder:
 
     def embed_query(self, text: str) -> np.ndarray:
         """Embed a single query text."""
-        embedding = self.model.encode(
-            [text],
-            show_progress_bar=False,
-            convert_to_numpy=True,
-            normalize_embeddings=True,
-        )
-        return np.array(embedding[0], dtype=np.float32)
+        result = self.embed([text], show_progress=False, is_query=True)
+        return result[0]
 
 
 # Backwards compatibility alias

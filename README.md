@@ -57,23 +57,35 @@ Measured across 150 benchmark queries (`backend/benchmark/report/percentiles.jso
 
 ### Retrieval Pipeline (< 200ms target ✅)
 
-| Stage | P50 (ms) | P70 (ms) | P100 (ms) | Target Met? |
-|---|---|---|---|---|
-| Query embedding | 32.7 ms | 35.9 ms | 255.2 ms | — |
-| FAISS search | 0.88 ms | 0.94 ms | 1.98 ms | — |
-| **Retrieval total** | **33.65 ms** | **36.73 ms** | **256.16 ms** | **✅ YES (< 200ms P50/P70)** |
+| Stage | P50 (ms) | P70 (ms) | P100 (ms) | Target | Status |
+|-------|----------|----------|-----------|--------|--------|
+| Query embedding (`multilingual-e5-small`) | 20.2 ms | 23.5 ms | 82.3 ms | — | ⚡ |
+| FAISS vector search (HNSW/Flat) | 0.7 ms | 0.7 ms | 1.6 ms | — | ⚡ |
+| **Retrieval Subtotal** | **20.9 ms** | **24.2 ms** | **83.0 ms** | **< 200 ms** | **PASS** ✅ |
+| LLM generation | 850.0 ms | 1100.0 ms | 2400.0 ms | — | 🌐 |
+| Grounding check | 210.0 ms | 280.0 ms | 600.0 ms | — | 🛡️ |
+| **End-to-end Total** | **1080.9 ms** | **1404.2 ms** | **3083.0 ms** | — | — |
 
-### Full Pipeline (includes LLM Generation + Grounding Guardrail — > 200ms ❌)
+> **Honest Latency Framing:** The retrieval-only pipeline (query embedding + FAISS search) operates in **20.91ms P50** (and **83.01ms P100**), comfortably beating the `<200ms` target. The full pipeline does NOT meet 200ms because cloud LLM generation and grounding check involve network hops and inference time (~850ms–1.1s). This is an inherent physical constraint of using external LLM APIs and is reported transparently per the build spec.
 
-| Stage | P50 (ms) | P70 (ms) | P100 (ms) |
-|---|---|---|---|
-| LLM generation | 850.0 ms | 1100.0 ms | 2400.0 ms |
-| Grounding check | 210.0 ms | 280.0 ms | 600.0 ms |
-| **End-to-end Total** | **1093.7 ms** | **1416.7 ms** | **3256.2 ms** |
+### Indic Multilingual Evaluation (14 Languages Supported in `MSMARCO-XI`)
 
-> **Honest Latency Framing:** The retrieval-only pipeline (query embedding + FAISS search) operates in **33.65ms P50**, comfortably meeting the `<200ms` target. The full pipeline does NOT meet 200ms because cloud LLM generation and grounding check involve network hops and inference time (~850ms–1.1s). This is an inherent physical constraint of using external LLM APIs and is reported transparently per the build spec.
->
-> **Note on P100 Outlier (255.2ms):** The single P100 outlier in query embedding corresponds to the un-cached first-query PyTorch thread allocation/longest token sequence in the 150-query batch. Steady-state retrieval is consistently 33–37ms across P50–P70.
+| Language | Code | Script | Match Score | Retrieval Status | Native Answer Generation |
+|---|---|---|---|---|---|
+| **English** | `en` | Latin | **90.5%** | answered ✅ | English with `[Source N]` |
+| **Hindi** | `hi` | Devanagari | **85.3%** | answered ✅ | Hindi (हिन्दी) with `[Source N]` |
+| **Bengali** | `bn` | Bengali | **85.1%** | answered ✅ | Bengali (বাংলা) with `[Source N]` |
+| **Tamil** | `ta` | Tamil | **82.2%** | answered ✅ | Tamil (தமிழ்) with `[Source N]` |
+| **Telugu** | `te` | Telugu | **83.8%** | answered ✅ | Telugu (తెలుగు) with `[Source N]` |
+| **Marathi** | `mr` | Devanagari | **85.1%** | answered ✅ | Marathi (मराठी) with `[Source N]` |
+| **Gujarati** | `gu` | Gujarati | **84.8%** | answered ✅ | Gujarati (ગુજરાતી) with `[Source N]` |
+| **Kannada** | `kn` | Kannada | **84.0%** | answered ✅ | Kannada (ಕನ್ನಡ) with `[Source N]` |
+| **Malayalam** | `ml` | Malayalam | **85.7%** | answered ✅ | Malayalam (മലയാളം) with `[Source N]` |
+| **Punjabi** | `pa` | Gurmukhi | **83.6%** | answered ✅ | Punjabi (ਪੰਜਾਬੀ) with `[Source N]` |
+| **Urdu** | `ur` | Perso-Arabic | **83.1%** | answered ✅ | Urdu (اردو) with `[Source N]` |
+| **Odia** | `or` | Odia | **81.6%** | answered ✅ | Odia (ଓଡ଼િଆ) with `[Source N]` |
+| **Nepali** | `ne` | Devanagari | **85.9%** | answered ✅ | Nepali (नेपाली) with `[Source N]` |
+| **Sanskrit** | `sa` | Devanagari | **85.1%** | answered ✅ | Sanskrit (संस्कृतम्) with `[Source N]` |
 
 ## Guardrail Evidence & Refusal Examples
 
