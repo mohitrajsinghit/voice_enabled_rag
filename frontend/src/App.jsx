@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import Recorder from './components/Recorder';
 import AnswerCard from './components/AnswerCard';
 import LatencyBadge from './components/LatencyBadge';
+import { HHGoaLogo, HackerHouseLogo } from './components/BrandLogos';
 import { queryWithText } from './api';
 
 // Pre-tested Indic and Guardrail Prompts
@@ -78,8 +79,8 @@ export default function App() {
       <header className="navbar">
         <div className="nav-brand">
           <div className="brand-logos">
-            <img src="/assets/hhgoa.webp" alt="Hacker House Goa" className="logo-img-hhgoa" />
-            <img src="/assets/hackerhouse.png" alt="Hacker House" className="logo-img-hh" />
+            <HHGoaLogo className="logo-img-hhgoa" />
+            <HackerHouseLogo className="logo-img-hh" />
           </div>
           <div className="brand-info">
             <span className="brand-title">
@@ -294,8 +295,8 @@ export default function App() {
       {/* ── Footer ──────────────────────────────────────────────── */}
       <footer className="app-footer">
         <div className="footer-brand-row">
-          <img src="/assets/hhgoa.webp" alt="HH Goa" style={{ height: 24, borderRadius: 4 }} />
-          <img src="/assets/hackerhouse.png" alt="Hacker House" style={{ height: 20 }} />
+          <HHGoaLogo className="logo-img-hhgoa" />
+          <HackerHouseLogo className="logo-img-hh" />
         </div>
         <p className="footer-text">
           Built for <strong>Hacker House Goa 2026</strong> • Voice-Enabled RAG Task 2 • Tag <code>#RAGInGoa</code>
