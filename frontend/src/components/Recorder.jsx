@@ -2,20 +2,12 @@ import React, { useState, useRef, useCallback } from 'react';
 import { queryWithAudio } from '../api';
 
 /**
- * Mic icon SVG component.
+ * Modern Microphone SVG Icon
  */
-function MicIcon({ recording }) {
+function MicIcon() {
   return (
-    <svg
-      className="mic-icon"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke={recording ? '#ef4444' : 'currentColor'}
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+    <svg className="orb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z" />
       <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
       <line x1="12" y1="19" x2="12" y2="23" />
       <line x1="8" y1="23" x2="16" y2="23" />
@@ -24,18 +16,18 @@ function MicIcon({ recording }) {
 }
 
 /**
- * Stop icon SVG.
+ * Modern Stop SVG Icon
  */
 function StopIcon() {
   return (
-    <svg className="mic-icon" viewBox="0 0 24 24" fill="currentColor">
-      <rect x="6" y="6" width="12" height="12" rx="2" />
+    <svg className="orb-icon" viewBox="0 0 24 24" fill="currentColor">
+      <rect x="6" y="6" width="12" height="12" rx="3" />
     </svg>
   );
 }
 
 /**
- * Recorder component: captures mic audio via MediaRecorder API.
+ * Luxury Voice Orb Recorder Component
  */
 export default function Recorder({ onResult, onStatusChange, disabled }) {
   const [recording, setRecording] = useState(false);
@@ -65,7 +57,7 @@ export default function Recorder({ onResult, onStatusChange, disabled }) {
       };
 
       mediaRecorder.onstop = async () => {
-        // Stop all tracks
+        // Stop audio tracks
         stream.getTracks().forEach((track) => track.stop());
 
         const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm' });
@@ -75,29 +67,28 @@ export default function Recorder({ onResult, onStatusChange, disabled }) {
           return;
         }
 
-        onStatusChange?.('transcribing', 'Processing audio...');
+        onStatusChange?.('transcribing', 'Transcribing audio via Sarvam STT...');
 
         try {
           const result = await queryWithAudio(audioBlob);
           onResult?.(result);
-          onStatusChange?.('done', 'Complete');
+          onStatusChange?.('done', 'Query completed');
         } catch (error) {
-          onStatusChange?.('error', error.message);
+          onStatusChange?.('error', error.message || 'Voice search failed');
         }
       };
 
-      mediaRecorder.start(250); // Collect data every 250ms
+      mediaRecorder.start(250);
       setRecording(true);
       startTimeRef.current = Date.now();
-      onStatusChange?.('recording', 'Recording...');
+      onStatusChange?.('recording', 'Listening... Speak in any of 14 Indic languages or English');
 
-      // Update duration timer
       timerRef.current = setInterval(() => {
         setDuration(Math.floor((Date.now() - startTimeRef.current) / 1000));
       }, 100);
     } catch (error) {
       console.error('Failed to start recording:', error);
-      onStatusChange?.('error', 'Microphone access denied');
+      onStatusChange?.('error', 'Microphone access denied or not available');
     }
   }, [onResult, onStatusChange]);
 
@@ -125,20 +116,31 @@ export default function Recorder({ onResult, onStatusChange, disabled }) {
   };
 
   return (
-    <div className="recorder-section">
-      <button
-        className={`record-btn ${recording ? 'recording' : ''}`}
-        onClick={handleClick}
-        disabled={disabled && !recording}
-        aria-label={recording ? 'Stop recording' : 'Start recording'}
-        id="record-button"
-      >
-        {recording ? <StopIcon /> : <MicIcon recording={recording} />}
-      </button>
+    <div className="voice-visualizer-container">
+      <div className={`orb-wrapper ${recording ? 'active' : ''}`}>
+        <div className="orb-glow-ring" />
+        <div className="orb-ripple-1" />
+        <div className="orb-ripple-2" />
 
-      {recording && (
-        <span className="recording-timer">
-          🔴 {formatTime(duration)}
+        <button
+          className={`voice-orb-btn ${recording ? 'recording' : ''}`}
+          onClick={handleClick}
+          disabled={disabled && !recording}
+          aria-label={recording ? 'Stop recording voice' : 'Start speaking'}
+          id="record-button"
+        >
+          {recording ? <StopIcon /> : <MicIcon />}
+        </button>
+      </div>
+
+      {recording ? (
+        <div className="recording-hud">
+          <span className="rec-pulse-dot" />
+          <span>RECORDING • {formatTime(duration)}</span>
+        </div>
+      ) : (
+        <span className="voice-hint">
+          Click the glowing orb to speak your question
         </span>
       )}
     </div>
