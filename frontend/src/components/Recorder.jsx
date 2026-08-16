@@ -140,7 +140,7 @@ export default function Recorder({ onResult, onStatusChange, disabled }) {
         </div>
       ) : (
         <span className="voice-hint">
-          Click the glowing orb to speak your question
+          Click the mic to speak your question
         </span>
       )}
     </div>

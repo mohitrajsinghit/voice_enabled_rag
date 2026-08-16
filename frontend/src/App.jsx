@@ -79,9 +79,7 @@ export default function App() {
         <div className="nav-brand">
           <div className="brand-badge-icon">🎙️</div>
           <div className="brand-info">
-            <span className="brand-title">
-              Voice RAG <span className="version-pill">GOA '26</span>
-            </span>
+            <span className="brand-title">Voice RAG</span>
             <span className="brand-subtitle">Multilingual Neural Intelligence</span>
           </div>
         </div>
@@ -107,11 +105,6 @@ export default function App() {
       <main className="app-container">
         {/* Hero Section */}
         <section className="hero-section">
-          <div className="badge-hackathon">
-            <span>🚀 Hacker House Goa 2026</span>
-            <span>•</span>
-            <span>Task 2 Build</span>
-          </div>
 
           <h1 className="hero-title">
             Voice-Enabled <span className="gradient-text">Multilingual RAG</span>
@@ -297,9 +290,6 @@ export default function App() {
           <span className="footer-dot">•</span>
           <span className="footer-tag">🛡️ 4-Tier Guardrails</span>
         </div>
-        <p className="footer-text">
-          Built for <strong>Hacker House Goa 2026</strong> • Voice-Enabled RAG Task 2 • Tag <code>#RAGInGoa</code>
-        </p>
       </footer>
     </div>
   );
