@@ -23,31 +23,39 @@ export default function ArchitectureModal({ onClose }) {
           </button>
         </div>
 
-        {/* Tab Navigation */}
+        {/* Tab Navigation (Generic 4-Grid Segmented Control) */}
         <div className="modal-tabs-nav">
           <button
             className={`modal-tab-btn ${activeTab === 'pipeline' ? 'active' : ''}`}
             onClick={() => setActiveTab('pipeline')}
+            type="button"
           >
-            🏗️ Pipeline Flow
+            <span>⚡</span>
+            <span>Pipeline</span>
           </button>
           <button
             className={`modal-tab-btn ${activeTab === 'guardrails' ? 'active' : ''}`}
             onClick={() => setActiveTab('guardrails')}
+            type="button"
           >
-            🛡️ 4-Tier Guardrails
+            <span>🛡️</span>
+            <span>Guardrails</span>
           </button>
           <button
             className={`modal-tab-btn ${activeTab === 'multilingual' ? 'active' : ''}`}
             onClick={() => setActiveTab('multilingual')}
+            type="button"
           >
-            🌐 14 Indic Languages
+            <span>🌐</span>
+            <span>14 Languages</span>
           </button>
           <button
             className={`modal-tab-btn ${activeTab === 'latency' ? 'active' : ''}`}
             onClick={() => setActiveTab('latency')}
+            type="button"
           >
-            ⚡ Latency Analytics
+            <span>📊</span>
+            <span>Latency</span>
           </button>
         </div>
 
