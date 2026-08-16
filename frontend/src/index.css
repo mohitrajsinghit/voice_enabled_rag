@@ -1216,14 +1216,16 @@ body::after {
 }
 
 .modal-container {
-  max-width: 720px;
+  max-width: 760px;
   width: 100%;
-  max-height: 88vh;
+  height: 86vh;
+  max-height: 86vh;
   display: flex;
   flex-direction: column;
-  background: rgba(10, 10, 28, 0.95);
+  background: rgba(10, 10, 28, 0.96);
   border: 1px solid var(--border-glass-bright);
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.8), 0 0 40px rgba(99, 102, 241, 0.2);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.85), 0 0 40px rgba(99, 102, 241, 0.2);
   overflow: hidden;
   position: relative;
 }
@@ -1232,8 +1234,9 @@ body::after {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 24px 28px 18px;
+  padding: 22px 28px 16px;
   border-bottom: 1px solid var(--border-glass);
+  flex-shrink: 0;
 }
 
 .modal-title-group {
@@ -1295,6 +1298,7 @@ body::after {
   background: rgba(0, 0, 0, 0.4);
   border-bottom: 1px solid var(--border-glass);
   overflow: hidden;
+  flex-shrink: 0;
 }
 
 .modal-tab-btn {
@@ -1334,15 +1338,35 @@ body::after {
 }
 
 .modal-body-content {
-  padding: 24px 28px;
+  padding: 24px 28px 56px;
   overflow-y: auto;
   flex: 1;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.modal-body-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-body-content::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.modal-body-content::-webkit-scrollbar-thumb {
+  background: rgba(99, 102, 241, 0.4);
+  border-radius: var(--radius-full);
+}
+
+.modal-body-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(99, 102, 241, 0.7);
 }
 
 .arch-section-group {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  padding-bottom: 24px;
 }
 
 .spec-card {
@@ -1429,6 +1453,7 @@ body::after {
   overflow-x: auto;
   border-radius: var(--radius-md);
   border: 1px solid var(--border-glass);
+  background: rgba(10, 10, 24, 0.5);
 }
 
 .indic-table {
@@ -1440,19 +1465,27 @@ body::after {
 
 .indic-table th {
   background: rgba(255, 255, 255, 0.05);
-  padding: 10px 16px;
+  padding: 11px 16px;
   font-weight: 700;
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--text-dim);
   border-bottom: 1px solid var(--border-glass);
+  white-space: nowrap;
 }
 
 .indic-table td {
-  padding: 10px 16px;
+  padding: 11px 16px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
   color: var(--text-bright);
+  vertical-align: middle;
+}
+
+.indic-table td:last-child,
+.indic-table th:last-child {
+  text-align: right;
+  white-space: nowrap;
 }
 
 .indic-table tr:last-child td {
@@ -1464,8 +1497,14 @@ body::after {
   font-size: 0.75rem;
   font-weight: 700;
   color: #34d399;
-  padding: 2px 8px;
+  padding: 3px 10px;
   border-radius: var(--radius-full);
   background: rgba(16, 185, 129, 0.12);
   border: 1px solid rgba(16, 185, 129, 0.3);
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  letter-spacing: 0.02em;
 }

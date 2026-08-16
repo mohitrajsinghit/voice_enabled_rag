@@ -258,7 +258,7 @@ export default function ArchitectureModal({ onClose }) {
                       <td><strong>20.9 ms</strong></td>
                       <td><strong>24.2 ms</strong></td>
                       <td><strong>83.0 ms</strong></td>
-                      <td><span className="status-pass">&lt; 200ms ✅ PASS</span></td>
+                      <td><span className="status-pass">&lt; 200ms • PASS ✅</span></td>
                     </tr>
                     <tr>
                       <td>Cloud LLM Generation (Gemini 2.5 Flash)</td>
