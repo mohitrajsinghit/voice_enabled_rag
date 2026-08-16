@@ -4,7 +4,7 @@ import React, { useState } from 'react';
  * Interactive Architecture & System Specs Modal
  */
 export default function ArchitectureModal({ onClose }) {
-  const [activeTab, setActiveTab] = useState('pipeline'); // pipeline, guardrails, multilingual, latency
+  const [activeTab, setActiveTab] = useState('pipeline'); // pipeline, guardrails, multilingual, latency, security
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
@@ -15,7 +15,7 @@ export default function ArchitectureModal({ onClose }) {
             <div className="modal-badge-icon">⚙️</div>
             <div>
               <h2 className="modal-title">System Architecture & Technical Specs</h2>
-              <p className="modal-subtitle">Comprehensive breakdown of RAG pipeline, guardrails & telemetry</p>
+              <p className="modal-subtitle">End-to-end pipeline, 4-tier guardrails, edge security & telemetry</p>
             </div>
           </div>
           <button className="modal-close-btn" onClick={onClose} aria-label="Close Architecture Modal">
@@ -23,8 +23,8 @@ export default function ArchitectureModal({ onClose }) {
           </button>
         </div>
 
-        {/* Tab Navigation (Generic 4-Grid Segmented Control) */}
-        <div className="modal-tabs-nav">
+        {/* Tab Navigation (5-Grid Segmented Control) */}
+        <div className="modal-tabs-nav" style={{ gridTemplateColumns: 'repeat(5, 1fr)' }}>
           <button
             className={`modal-tab-btn ${activeTab === 'pipeline' ? 'active' : ''}`}
             onClick={() => setActiveTab('pipeline')}
@@ -40,6 +40,14 @@ export default function ArchitectureModal({ onClose }) {
           >
             <span>🛡️</span>
             <span>Guardrails</span>
+          </button>
+          <button
+            className={`modal-tab-btn ${activeTab === 'security' ? 'active' : ''}`}
+            onClick={() => setActiveTab('security')}
+            type="button"
+          >
+            <span>🔒</span>
+            <span>Security</span>
           </button>
           <button
             className={`modal-tab-btn ${activeTab === 'multilingual' ? 'active' : ''}`}
@@ -67,11 +75,11 @@ export default function ArchitectureModal({ onClose }) {
               <div className="spec-card">
                 <div className="spec-card-header">
                   <span className="spec-step-num">01</span>
-                  <h4>🎙️ Speech-to-Text (STT) Layer</h4>
-                  <span className="spec-tag">Sarvam AI SaaS</span>
+                  <h4>🎙️ Voice Ingestion & STT Layer</h4>
+                  <span className="spec-tag">Sarvam AI + Web Audio API</span>
                 </div>
                 <p>
-                  High-accuracy speech transcription handling Indian accents and 10+ Indic languages. Audio is captured via browser <code>MediaRecorder</code> in WebM Opus format and streamed to Sarvam STT.
+                  Real-time microphone capture via browser <code>MediaRecorder</code> (Opus WebM) with live 48-bar frequency waveform visualization. Streams directly to Sarvam AI STT for high-accuracy multilingual transcription across 14 Indic languages.
                 </p>
               </div>
 
@@ -99,7 +107,7 @@ export default function ArchitectureModal({ onClose }) {
                   <span className="spec-tag">intfloat/multilingual-e5-small</span>
                 </div>
                 <p>
-                  384-dimensional dense vectors with asymmetric prefixing (<code>passage: </code> for corpus indexing, <code>query: </code> for search). Achieves <strong>81.6%–90.5% cross-lingual alignment</strong> across all 14 Indic scripts.
+                  384-dimensional dense vectors with asymmetric prefixing (<code>passage: </code> for corpus indexing, <code>query: </code> for search). Achieves <strong>81.6%–90.5% cross-lingual alignment</strong> across all 14 Indic scripts in ~20ms.
                 </p>
               </div>
 
@@ -107,7 +115,7 @@ export default function ArchitectureModal({ onClose }) {
                 <div className="spec-card-header">
                   <span className="spec-step-num">04</span>
                   <h4>🔍 Sub-Millisecond Vector Database</h4>
-                  <span className="spec-tag">FAISS IndexFlatIP (0.7ms)</span>
+                  <span className="spec-tag">FAISS IndexFlatIP (0.69ms)</span>
                 </div>
                 <p>
                   Indexed 4,995 passages with normalized inner-product cosine similarity. Sub-millisecond top-k retrieval in <strong>0.69ms P50</strong>.
@@ -117,11 +125,11 @@ export default function ArchitectureModal({ onClose }) {
               <div className="spec-card">
                 <div className="spec-card-header">
                   <span className="spec-step-num">05</span>
-                  <h4>🧠 Grounded Answer Generation</h4>
-                  <span className="spec-tag">Google Gemini 2.5 Flash / LM Studio</span>
+                  <h4>🧠 Natural Grounded Answer Generation</h4>
+                  <span className="spec-tag">Gemini / LM Studio</span>
                 </div>
                 <p>
-                  Generates fluent answers in the exact language of the user's query while enforcing strict in-text citation backing (<code>[Source 1]</code>, <code>[Source 2]</code>).
+                  Generates clean, fluent answers in the exact language of the user's query. Output is rendered via progressive typewriter streaming, accompanied by dedicated source evidence cards with exact similarity scores.
                 </p>
               </div>
             </div>
@@ -180,7 +188,64 @@ export default function ArchitectureModal({ onClose }) {
             </div>
           )}
 
-          {/* TAB 3: 14 INDIC LANGUAGES */}
+          {/* TAB 3: EDGE SECURITY & ABUSE PREVENTION */}
+          {activeTab === 'security' && (
+            <div className="arch-section-group">
+              <div className="spec-highlight-banner" style={{ borderColor: 'rgba(6, 182, 212, 0.4)', background: 'rgba(6, 182, 212, 0.08)' }}>
+                <strong style={{ color: '#38bdf8' }}>🔒 Production Vercel & API Hardening:</strong> Multi-layered security controls designed to prevent cost spikes, DDoS, credential scraping, and abusive automated bots.
+              </div>
+
+              <div className="spec-card">
+                <div className="spec-card-header">
+                  <span className="spec-step-num" style={{ background: 'rgba(6, 182, 212, 0.2)', color: '#38bdf8' }}>S1</span>
+                  <h4>5 Req/Min Sliding-Window Rate Limiter</h4>
+                  <span className="spec-tag">Anti-DDoS & Cost Guard</span>
+                </div>
+                <p>
+                  Enforces an exact sliding-window limit of <strong>5 queries per minute per client IP</strong> via backend middleware. If exceeded, the system returns HTTP 429 with Retry-After headers, triggering an interactive UI countdown modal.
+                </p>
+              </div>
+
+              <div className="spec-card">
+                <div className="spec-card-header">
+                  <span className="spec-step-num" style={{ background: 'rgba(139, 92, 246, 0.2)', color: '#c084fc' }}>S2</span>
+                  <h4>1-Min Voice Gauge & 500-Char Query Cap</h4>
+                  <span className="spec-tag">Resource & Audio Guard</span>
+                </div>
+                <p>
+                  Strict input limits protect server memory and STT cloud API credits:
+                </p>
+                <ul className="spec-bullet-list">
+                  <li><strong>1-Minute Voice Cap:</strong> Voice recordings automatically stop at 60s, guided by an interactive <strong>Green (0–35s) → Yellow (35–50s) → Red (50–60s)</strong> dynamic countdown ring on the mic orb.</li>
+                  <li><strong>Max 500 Characters:</strong> Text query input validation blocks oversized prompts and token exhaustion attacks.</li>
+                </ul>
+              </div>
+
+              <div className="spec-card">
+                <div className="spec-card-header">
+                  <span className="spec-step-num" style={{ background: 'rgba(236, 72, 153, 0.2)', color: '#f472b6' }}>S3</span>
+                  <h4>Zero Client Credential Exposure & CORS Locking</h4>
+                  <span className="spec-tag">Zero Trust</span>
+                </div>
+                <p>
+                  All provider credentials (<code>SARVAM_API_KEY</code>, <code>GOOGLE_API_KEY</code>) reside strictly in server-side environment variables. Reverse proxy routing and CORS headers lock API access to authorized deployment origins.
+                </p>
+              </div>
+
+              <div className="spec-card">
+                <div className="spec-card-header">
+                  <span className="spec-step-num" style={{ background: 'rgba(16, 185, 129, 0.2)', color: '#34d399' }}>S4</span>
+                  <h4>UI Debounce & Client-Side Anti-Spam</h4>
+                  <span className="spec-tag">Interactive Shield</span>
+                </div>
+                <p>
+                  Disables query dispatching while requests are in-flight with a 2-second debounce on voice/text submission buttons, preventing double-click racing and repeated concurrent pipeline execution.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 4: 14 INDIC LANGUAGES */}
           {activeTab === 'multilingual' && (
             <div className="arch-section-group">
               <p style={{ color: 'var(--text-muted)', fontSize: '0.92rem' }}>
@@ -220,7 +285,7 @@ export default function ArchitectureModal({ onClose }) {
             </div>
           )}
 
-          {/* TAB 4: LATENCY ANALYTICS */}
+          {/* TAB 5: LATENCY ANALYTICS */}
           {activeTab === 'latency' && (
             <div className="arch-section-group">
               <div className="spec-highlight-banner" style={{ borderColor: 'rgba(16, 185, 129, 0.4)', background: 'rgba(16, 185, 129, 0.08)' }}>

@@ -2,12 +2,17 @@
 from __future__ import annotations
 
 import logging
+import os
+import time
+from collections import defaultdict
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI, File, Form, UploadFile, HTTPException
+from fastapi import FastAPI, File, Form, UploadFile, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.responses import JSONResponse
 
 from backend.app.config import get_settings
 from backend.app.generation.llm_client import LLMClient
@@ -22,6 +27,53 @@ from backend.app.stt.sarvam_client import SarvamClient
 from backend.app.utils.logging_config import setup_logging
 
 logger = logging.getLogger(__name__)
+
+# Sliding-window rate limiter: client request timestamp history
+client_request_history: dict[str, list[float]] = defaultdict(list)
+
+
+class RateLimitMiddleware(BaseHTTPMiddleware):
+    """Enforces sliding-window rate limit per IP on query endpoints (configurable via .env)."""
+
+    async def dispatch(self, request: Request, call_next):
+        if request.method == "OPTIONS" or request.url.path in ("/health", "/docs", "/openapi.json"):
+            return await call_next(request)
+
+        if request.url.path.startswith("/query"):
+            client_ip = request.client.host if request.client else "unknown"
+            forwarded_for = request.headers.get("x-forwarded-for")
+            if forwarded_for:
+                client_ip = forwarded_for.split(",")[0].strip()
+
+            limit = int(os.getenv("RATE_LIMIT_REQUESTS", "5"))
+            window_seconds = int(os.getenv("RATE_LIMIT_WINDOW_SECONDS", "60"))
+
+            now = time.time()
+            window_start = now - window_seconds
+
+            # Keep only timestamps within the current sliding window
+            timestamps = [ts for ts in client_request_history[client_ip] if ts > window_start]
+
+            if len(timestamps) >= limit:
+                oldest_in_window = timestamps[0]
+                retry_after = max(1, int(oldest_in_window + window_seconds - now))
+                return JSONResponse(
+                    status_code=429,
+                    content={
+                        "detail": f"Rate limit exceeded: Maximum {limit} requests per minute allowed. Please wait {retry_after} seconds.",
+                        "error_type": "rate_limit_exceeded",
+                        "retry_after": retry_after,
+                        "limit": limit,
+                        "window_seconds": window_seconds,
+                    },
+                    headers={"Retry-After": str(retry_after)},
+                )
+
+            timestamps.append(now)
+            client_request_history[client_ip] = timestamps
+
+        return await call_next(request)
+
 
 # Global pipeline instance
 _pipeline: VoiceRAGPipeline | None = None
@@ -110,7 +162,8 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# CORS middleware
+# Middleware: Sliding-window rate limit (5 req/min/IP) + CORS
+app.add_middleware(RateLimitMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -124,7 +177,7 @@ app.add_middleware(
 
 class TextQueryRequest(BaseModel):
     """Text-mode query request (bypass STT)."""
-    text: str
+    text: str = Field(..., max_length=500, description="Query text up to 500 characters")
     language: str = "en"
 
 

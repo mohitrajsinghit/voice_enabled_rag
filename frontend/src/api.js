@@ -19,8 +19,12 @@ export async function queryWithAudio(audioBlob) {
   });
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ detail: 'Request failed' }));
-    throw new Error(error.detail || `HTTP ${response.status}`);
+    const errorData = await response.json().catch(() => ({ detail: 'Request failed' }));
+    const err = new Error(errorData.detail || `HTTP ${response.status}`);
+    err.status = response.status;
+    err.isRateLimit = response.status === 429;
+    err.retryAfter = errorData.retry_after || 60;
+    throw err;
   }
 
   return response.json();
@@ -39,8 +43,12 @@ export async function queryWithText(text) {
   });
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ detail: 'Request failed' }));
-    throw new Error(error.detail || `HTTP ${response.status}`);
+    const errorData = await response.json().catch(() => ({ detail: 'Request failed' }));
+    const err = new Error(errorData.detail || `HTTP ${response.status}`);
+    err.status = response.status;
+    err.isRateLimit = response.status === 429;
+    err.retryAfter = errorData.retry_after || 60;
+    throw err;
   }
 
   return response.json();

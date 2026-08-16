@@ -1,6 +1,8 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { queryWithAudio } from '../api';
 
+const MAX_RECORDING_SECONDS = 60; // 1 minute max voice duration
+
 /**
  * Modern Microphone SVG Icon
  */
@@ -22,6 +24,71 @@ function StopIcon() {
   return (
     <svg className="orb-icon" viewBox="0 0 24 24" fill="currentColor">
       <rect x="6" y="6" width="12" height="12" rx="3" />
+    </svg>
+  );
+}
+
+/**
+ * Dynamic 60-Second Circular Countdown Ring (Green -> Yellow -> Red)
+ */
+function CountdownRing({ duration, maxDuration = 60 }) {
+  const size = 118;
+  const strokeWidth = 4;
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const progress = Math.min(duration / maxDuration, 1);
+  const strokeDashoffset = circumference * (1 - progress);
+
+  let ringColor = '#10b981'; // Green (0 - 35s)
+  let glowColor = 'rgba(16, 185, 129, 0.5)';
+  if (duration >= 50) {
+    ringColor = '#ef4444'; // Red (50 - 60s)
+    glowColor = 'rgba(239, 68, 68, 0.7)';
+  } else if (duration >= 35) {
+    ringColor = '#f59e0b'; // Yellow / Amber (35 - 50s)
+    glowColor = 'rgba(245, 158, 11, 0.6)';
+  }
+
+  return (
+    <svg
+      className="orb-countdown-ring"
+      width={size}
+      height={size}
+      viewBox={`0 0 ${size} ${size}`}
+      style={{
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%) rotate(-90deg)',
+        pointerEvents: 'none',
+        zIndex: 4,
+        filter: `drop-shadow(0 0 8px ${glowColor})`,
+      }}
+    >
+      {/* Background track */}
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={radius}
+        fill="transparent"
+        stroke="rgba(255, 255, 255, 0.08)"
+        strokeWidth={strokeWidth}
+      />
+      {/* Animated countdown progress ring */}
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={radius}
+        fill="transparent"
+        stroke={ringColor}
+        strokeWidth={strokeWidth}
+        strokeDasharray={circumference}
+        strokeDashoffset={strokeDashoffset}
+        strokeLinecap="round"
+        style={{
+          transition: 'stroke-dashoffset 0.15s linear, stroke 0.3s ease',
+        }}
+      />
     </svg>
   );
 }
@@ -94,7 +161,7 @@ function WaveformRing({ analyserRef }) {
 }
 
 /**
- * Luxury Voice Orb Recorder Component with real-time waveform
+ * Luxury Voice Orb Recorder Component with real-time waveform & 60s countdown ring
  */
 export default function Recorder({ onResult, onStatusChange, disabled }) {
   const [recording, setRecording] = useState(false);
@@ -105,6 +172,18 @@ export default function Recorder({ onResult, onStatusChange, disabled }) {
   const startTimeRef = useRef(null);
   const analyserRef = useRef(null);
   const audioCtxRef = useRef(null);
+
+  const stopRecording = useCallback(() => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      mediaRecorderRef.current.stop();
+    }
+    setRecording(false);
+    setDuration(0);
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+  }, []);
 
   const startRecording = useCallback(async () => {
     try {
@@ -158,32 +237,33 @@ export default function Recorder({ onResult, onStatusChange, disabled }) {
           onResult?.(result);
           onStatusChange?.('done', 'Query completed');
         } catch (error) {
-          onStatusChange?.('error', error.message || 'Voice search failed');
+          onStatusChange?.('error', error.message || 'Voice search failed', error);
         }
       };
 
       mediaRecorder.start(250);
       setRecording(true);
       startTimeRef.current = Date.now();
-      onStatusChange?.('recording', 'Listening... Speak in any of 14 Indic languages or English');
+      onStatusChange?.('recording', 'Listening... Speak in any of 14 Indic languages or English (max 1 min)');
 
       timerRef.current = setInterval(() => {
-        setDuration(Math.floor((Date.now() - startTimeRef.current) / 1000));
+        const elapsed = Math.floor((Date.now() - startTimeRef.current) / 1000);
+        setDuration(elapsed);
+
+        // Auto-stop at 60 seconds (1 minute cap)
+        if (elapsed >= MAX_RECORDING_SECONDS) {
+          if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+            mediaRecorderRef.current.stop();
+          }
+          setRecording(false);
+          clearInterval(timerRef.current);
+        }
       }, 100);
     } catch (error) {
       console.error('Failed to start recording:', error);
       onStatusChange?.('error', 'Microphone access denied or not available');
     }
   }, [onResult, onStatusChange]);
-
-  const stopRecording = useCallback(() => {
-    if (mediaRecorderRef.current && recording) {
-      mediaRecorderRef.current.stop();
-      setRecording(false);
-      setDuration(0);
-      clearInterval(timerRef.current);
-    }
-  }, [recording]);
 
   const handleClick = useCallback(() => {
     if (recording) {
@@ -199,6 +279,12 @@ export default function Recorder({ onResult, onStatusChange, disabled }) {
     return `${m}:${s}`;
   };
 
+  const getHudClass = () => {
+    if (duration >= 50) return 'critical';
+    if (duration >= 35) return 'warning';
+    return 'safe';
+  };
+
   return (
     <div className="voice-visualizer-container">
       <div className={`orb-wrapper ${recording ? 'active' : ''}`}>
@@ -209,6 +295,11 @@ export default function Recorder({ onResult, onStatusChange, disabled }) {
         {/* Real-time waveform ring (only while recording) */}
         {recording && analyserRef.current && (
           <WaveformRing analyserRef={analyserRef} />
+        )}
+
+        {/* 60-Second Countdown Outer Ring with Green/Yellow/Red indicator */}
+        {recording && (
+          <CountdownRing duration={duration} maxDuration={MAX_RECORDING_SECONDS} />
         )}
 
         <button
@@ -223,13 +314,16 @@ export default function Recorder({ onResult, onStatusChange, disabled }) {
       </div>
 
       {recording ? (
-        <div className="recording-hud">
+        <div className={`recording-hud ${getHudClass()}`}>
           <span className="rec-pulse-dot" />
-          <span>RECORDING • {formatTime(duration)}</span>
+          <span>RECORDING • {formatTime(duration)} / 01:00</span>
+          {duration >= 50 && (
+            <span className="time-warning-tag">({MAX_RECORDING_SECONDS - duration}s left)</span>
+          )}
         </div>
       ) : (
         <span className="voice-hint">
-          Click the mic to speak your question
+          Click the mic to speak your question (max 1 min)
         </span>
       )}
     </div>
