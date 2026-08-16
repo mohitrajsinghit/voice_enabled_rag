@@ -1,11 +1,44 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 
 /**
- * AnswerCard: displays query transcript, grounded answer, guardrail verdict, and source passages.
+ * Typewriter effect hook — reveals text word by word from real backend answer
+ */
+function useTypewriter(text, speed = 25) {
+  const [displayedText, setDisplayedText] = useState('');
+  const [isComplete, setIsComplete] = useState(false);
+
+  useEffect(() => {
+    if (!text) { setDisplayedText(''); setIsComplete(false); return; }
+
+    setDisplayedText('');
+    setIsComplete(false);
+
+    const words = text.split(/(\s+)/); // preserve whitespace
+    let i = 0;
+
+    const timer = setInterval(() => {
+      i++;
+      setDisplayedText(words.slice(0, i).join(''));
+      if (i >= words.length) {
+        clearInterval(timer);
+        setIsComplete(true);
+      }
+    }, speed);
+
+    return () => clearInterval(timer);
+  }, [text, speed]);
+
+  return { displayedText, isComplete };
+}
+
+/**
+ * AnswerCard: displays query transcript, grounded answer with typewriter effect,
+ * guardrail verdict, and source passages.
  */
 export default function AnswerCard({ result }) {
   const [highlightedSource, setHighlightedSource] = useState(null);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [copyToast, setCopyToast] = useState(false);
 
   if (!result) return null;
 
@@ -35,6 +68,14 @@ export default function AnswerCard({ result }) {
     setIsSpeaking(true);
     window.speechSynthesis.speak(utterance);
   }, [answer, isSpeaking]);
+
+  // Copy with toast feedback
+  const handleCopy = useCallback(() => {
+    if (!answer) return;
+    navigator.clipboard.writeText(answer);
+    setCopyToast(true);
+    setTimeout(() => setCopyToast(false), 2000);
+  }, [answer]);
 
   // Highlight citation on click
   const handleCitationClick = (sourceNum) => {
@@ -71,7 +112,7 @@ export default function AnswerCard({ result }) {
   return (
     <div className="results-container">
       {/* Main Glassmorphic Response Panel */}
-      <div className={`glass-panel ${isAnswered ? 'glass-panel-glow' : ''}`} style={{ padding: '28px 32px' }}>
+      <div className={`glass-panel ${isAnswered ? 'glass-panel-glow' : ''} anim-scale-in`} style={{ padding: '28px 32px' }}>
         
         {/* Card Top Header */}
         <div className="card-header-bar">
@@ -133,11 +174,9 @@ export default function AnswerCard({ result }) {
           </div>
         )}
 
-        {/* Grounded Answer */}
+        {/* Grounded Answer with typewriter reveal */}
         {answer && (
-          <div className="answer-content">
-            {renderFormattedAnswer(answer)}
-          </div>
+          <TypewriterAnswer text={answer} renderFormatted={renderFormattedAnswer} />
         )}
 
         {/* Action Toolbar */}
@@ -154,12 +193,12 @@ export default function AnswerCard({ result }) {
               </button>
             )}
             <button
-              className="action-btn"
-              onClick={() => navigator.clipboard.writeText(answer)}
+              className={`action-btn ${copyToast ? 'copied' : ''}`}
+              onClick={handleCopy}
               aria-label="Copy answer to clipboard"
             >
-              <span>📋</span>
-              <span>Copy Response</span>
+              <span>{copyToast ? '✓' : '📋'}</span>
+              <span>{copyToast ? 'Copied!' : 'Copy Response'}</span>
             </button>
           </div>
         )}
@@ -167,7 +206,7 @@ export default function AnswerCard({ result }) {
 
       {/* Retrieved Knowledge Sources */}
       {sources && sources.length > 0 && (
-        <div className="glass-panel" style={{ padding: '24px 32px' }}>
+        <div className="glass-panel anim-fade-up-delay-1" style={{ padding: '24px 32px' }}>
           <div className="sources-heading">
             <span>Retrieved Knowledge Evidence ({sources.length} Passages)</span>
             <span style={{ fontSize: '0.75rem', fontFamily: 'var(--font-mono)', color: 'var(--neon-cyan)' }}>
@@ -182,6 +221,7 @@ export default function AnswerCard({ result }) {
                 source={source}
                 index={i + 1}
                 isHighlighted={highlightedSource === i + 1}
+                animDelay={i * 80}
               />
             ))}
           </div>
@@ -192,16 +232,39 @@ export default function AnswerCard({ result }) {
 }
 
 /**
- * Individual Source Passage Card
+ * TypewriterAnswer — reveals answer text word by word then replaces with formatted version
  */
-function SourcePassageCard({ source, index, isHighlighted }) {
+function TypewriterAnswer({ text, renderFormatted }) {
+  const { displayedText, isComplete } = useTypewriter(text, 20);
+
+  if (isComplete) {
+    return (
+      <div className="answer-content">
+        {renderFormatted(text)}
+      </div>
+    );
+  }
+
+  return (
+    <div className="answer-content">
+      {displayedText}
+      <span className="typewriter-cursor">|</span>
+    </div>
+  );
+}
+
+/**
+ * Individual Source Passage Card with stagger entrance
+ */
+function SourcePassageCard({ source, index, isHighlighted, animDelay }) {
   const [expanded, setExpanded] = useState(false);
   const { chunk, score } = source;
   const matchPct = (score * 100).toFixed(1);
 
   return (
     <div
-      className={`source-item-card ${isHighlighted ? 'highlighted' : ''}`}
+      className={`source-item-card ${isHighlighted ? 'highlighted' : ''} anim-fade-up`}
+      style={{ animationDelay: `${animDelay}ms` }}
       onClick={() => setExpanded(!expanded)}
       id={`source-item-${index}`}
     >

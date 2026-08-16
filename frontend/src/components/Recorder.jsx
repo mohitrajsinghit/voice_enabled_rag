@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { queryWithAudio } from '../api';
 
 /**
@@ -27,7 +27,74 @@ function StopIcon() {
 }
 
 /**
- * Luxury Voice Orb Recorder Component
+ * Real-time Audio Waveform Ring — renders actual microphone amplitude
+ */
+function WaveformRing({ analyserRef }) {
+  const canvasRef = useRef(null);
+  const animRef = useRef(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const analyser = analyserRef.current;
+    if (!canvas || !analyser) return;
+
+    const ctx = canvas.getContext('2d');
+    const size = 160;
+    canvas.width = size;
+    canvas.height = size;
+
+    const BAR_COUNT = 48;
+    const CENTER = size / 2;
+    const INNER_R = 48;
+    const MAX_BAR_H = 22;
+    const dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+    const draw = () => {
+      analyser.getByteFrequencyData(dataArray);
+      ctx.clearRect(0, 0, size, size);
+
+      for (let i = 0; i < BAR_COUNT; i++) {
+        const dataIdx = Math.floor((i / BAR_COUNT) * dataArray.length);
+        const amplitude = dataArray[dataIdx] / 255;
+        const barHeight = Math.max(3, amplitude * MAX_BAR_H);
+        const angle = (i / BAR_COUNT) * Math.PI * 2 - Math.PI / 2;
+
+        const x1 = CENTER + Math.cos(angle) * INNER_R;
+        const y1 = CENTER + Math.sin(angle) * INNER_R;
+        const x2 = CENTER + Math.cos(angle) * (INNER_R + barHeight);
+        const y2 = CENTER + Math.sin(angle) * (INNER_R + barHeight);
+
+        const alpha = 0.4 + amplitude * 0.6;
+        ctx.strokeStyle = `rgba(99, 102, 241, ${alpha})`;
+        ctx.lineWidth = 2.5;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+      }
+
+      animRef.current = requestAnimationFrame(draw);
+    };
+
+    draw();
+
+    return () => {
+      if (animRef.current) cancelAnimationFrame(animRef.current);
+    };
+  }, [analyserRef]);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className="waveform-ring-canvas"
+      aria-hidden="true"
+    />
+  );
+}
+
+/**
+ * Luxury Voice Orb Recorder Component with real-time waveform
  */
 export default function Recorder({ onResult, onStatusChange, disabled }) {
   const [recording, setRecording] = useState(false);
@@ -36,10 +103,22 @@ export default function Recorder({ onResult, onStatusChange, disabled }) {
   const chunksRef = useRef([]);
   const timerRef = useRef(null);
   const startTimeRef = useRef(null);
+  const analyserRef = useRef(null);
+  const audioCtxRef = useRef(null);
 
   const startRecording = useCallback(async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+      // Set up Web Audio API analyser for waveform
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const source = audioCtx.createMediaStreamSource(stream);
+      const analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 256;
+      analyser.smoothingTimeConstant = 0.7;
+      source.connect(analyser);
+      audioCtxRef.current = audioCtx;
+      analyserRef.current = analyser;
 
       const mediaRecorder = new MediaRecorder(stream, {
         mimeType: MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
@@ -59,6 +138,11 @@ export default function Recorder({ onResult, onStatusChange, disabled }) {
       mediaRecorder.onstop = async () => {
         // Stop audio tracks
         stream.getTracks().forEach((track) => track.stop());
+        if (audioCtxRef.current) {
+          audioCtxRef.current.close();
+          audioCtxRef.current = null;
+        }
+        analyserRef.current = null;
 
         const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm' });
 
@@ -121,6 +205,11 @@ export default function Recorder({ onResult, onStatusChange, disabled }) {
         <div className="orb-glow-ring" />
         <div className="orb-ripple-1" />
         <div className="orb-ripple-2" />
+
+        {/* Real-time waveform ring (only while recording) */}
+        {recording && analyserRef.current && (
+          <WaveformRing analyserRef={analyserRef} />
+        )}
 
         <button
           className={`voice-orb-btn ${recording ? 'recording' : ''}`}
