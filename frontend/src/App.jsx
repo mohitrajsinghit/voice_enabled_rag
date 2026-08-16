@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import Recorder from './components/Recorder';
 import AnswerCard from './components/AnswerCard';
 import LatencyBadge from './components/LatencyBadge';
+import ArchitectureModal from './components/ArchitectureModal';
 import { queryWithText } from './api';
 
 // Pre-tested Indic and Guardrail Prompts
@@ -207,78 +208,7 @@ export default function App() {
 
       {/* ── System Architecture Modal ────────────────────────────── */}
       {showArchModal && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            zIndex: 999,
-            background: 'rgba(0, 0, 0, 0.75)',
-            backdropFilter: 'blur(16px)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: 20,
-          }}
-          onClick={() => setShowArchModal(false)}
-        >
-          <div
-            className="glass-panel"
-            style={{
-              maxWidth: 620,
-              width: '100%',
-              padding: 32,
-              maxHeight: '90vh',
-              overflowY: 'auto',
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-              <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '1.4rem' }}>
-                Pipeline Architecture & Specs
-              </h2>
-              <button
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: 'var(--text-muted)',
-                  fontSize: '1.5rem',
-                  cursor: 'pointer',
-                }}
-                onClick={() => setShowArchModal(false)}
-              >
-                ✕
-              </button>
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16, fontSize: '0.92rem', lineHeight: 1.6, color: 'var(--text-muted)' }}>
-              <div>
-                <strong style={{ color: 'var(--text-bright)' }}>1. STT (Speech-to-Text):</strong>
-                <div>Sarvam AI SaaS API supporting 10+ Indic languages with high accuracy.</div>
-              </div>
-              <div>
-                <strong style={{ color: 'var(--text-bright)' }}>2. Embedding Model:</strong>
-                <div><code>intfloat/multilingual-e5-small</code> (384-dim dense embeddings, 20ms P50 latency).</div>
-              </div>
-              <div>
-                <strong style={{ color: 'var(--text-bright)' }}>3. Vector Store:</strong>
-                <div>FAISS IndexFlatIP (4,995 chunks, exact cosine search in 0.7ms).</div>
-              </div>
-              <div>
-                <strong style={{ color: 'var(--text-bright)' }}>4. Multi-Tier Guardrails:</strong>
-                <div>
-                  • Tier 1: Input Regex Jailbreak Filter (&lt;1ms)<br />
-                  • Tier 2: Corpus Centroid Distance Quality Filter<br />
-                  • Tier 3: Retrieval Relevance Score Gate<br />
-                  • Tier 4: LLM Grounding & Hallucination Judge
-                </div>
-              </div>
-              <div>
-                <strong style={{ color: 'var(--text-bright)' }}>5. Indic Language Support:</strong>
-                <div>Hindi, Bengali, Tamil, Telugu, Marathi, Gujarati, Kannada, Malayalam, Punjabi, Urdu, Odia, Nepali, Sanskrit, Assamese + English.</div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <ArchitectureModal onClose={() => setShowArchModal(false)} />
       )}
 
       {/* ── Footer ──────────────────────────────────────────────── */}
