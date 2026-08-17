@@ -43,9 +43,16 @@ class LocalEmbedder:
     def model(self) -> SentenceTransformer:
         """Lazy-load the sentence transformer model."""
         if self._model is None:
+            import torch
+            try:
+                torch.set_num_threads(2)
+                torch.set_grad_enabled(False)
+            except Exception:
+                pass
             from sentence_transformers import SentenceTransformer
             logger.info(f"Loading local embedding model: {self.model_name}")
             self._model = SentenceTransformer(self.model_name)
+            self._model.eval()
             logger.info(f"Model loaded. Embedding dimension: {self._model.get_sentence_embedding_dimension()}")
         return self._model
 
@@ -71,13 +78,15 @@ class LocalEmbedder:
         else:
             formatted_texts = texts
 
-        embeddings = self.model.encode(
-            formatted_texts,
-            batch_size=batch_size,
-            show_progress_bar=show_progress,
-            convert_to_numpy=True,
-            normalize_embeddings=True,
-        )
+        import torch
+        with torch.inference_mode():
+            embeddings = self.model.encode(
+                formatted_texts,
+                batch_size=batch_size,
+                show_progress_bar=show_progress,
+                convert_to_numpy=True,
+                normalize_embeddings=True,
+            )
         return np.array(embeddings, dtype=np.float32)
 
     def embed_query(self, text: str) -> np.ndarray:
