@@ -68,11 +68,14 @@ class SemanticChunker(Chunker):
 
     @property
     def model(self) -> SentenceTransformer:
-        """Lazy-load the sentence transformer model."""
+        """Lazy-load the sentence transformer model with GPU acceleration when available."""
         if self._model is None:
+            import torch
+            device = "cuda" if torch.cuda.is_available() else "cpu"
             from sentence_transformers import SentenceTransformer
-            logger.info(f"Loading embedding model: {self._model_name}")
-            self._model = SentenceTransformer(self._model_name)
+            dev_name = torch.cuda.get_device_name(0) if device == "cuda" else "CPU"
+            logger.info(f"Loading chunker embedding model on {device.upper()} ({dev_name}): {self._model_name}")
+            self._model = SentenceTransformer(self._model_name, device=device)
         return self._model
 
     def _compute_similarities(self, embeddings: np.ndarray) -> np.ndarray:

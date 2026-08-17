@@ -41,19 +41,22 @@ class LocalEmbedder:
 
     @property
     def model(self) -> SentenceTransformer:
-        """Lazy-load the sentence transformer model."""
+        """Lazy-load the sentence transformer model with GPU acceleration when available."""
         if self._model is None:
             import torch
-            try:
-                torch.set_num_threads(2)
-                torch.set_grad_enabled(False)
-            except Exception:
-                pass
+            device = "cuda" if torch.cuda.is_available() else "cpu"
+            if device == "cpu":
+                try:
+                    torch.set_num_threads(2)
+                except Exception:
+                    pass
             from sentence_transformers import SentenceTransformer
-            logger.info(f"Loading local embedding model: {self.model_name}")
-            self._model = SentenceTransformer(self.model_name)
+            dev_name = torch.cuda.get_device_name(0) if device == "cuda" else "CPU"
+            logger.info(f"Loading local embedding model on {device.upper()} ({dev_name}): {self.model_name}")
+            self._model = SentenceTransformer(self.model_name, device=device)
             self._model.eval()
-            logger.info(f"Model loaded. Embedding dimension: {self._model.get_sentence_embedding_dimension()}")
+            dim = self._model.get_sentence_embedding_dimension() if hasattr(self._model, 'get_sentence_embedding_dimension') else self._model.get_embedding_dimension()
+            logger.info(f"Model loaded on {device.upper()}. Embedding dimension: {dim}")
         return self._model
 
     @property

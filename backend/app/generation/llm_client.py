@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import time
 
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
@@ -49,15 +50,15 @@ class LLMClient:
         self.model = model
 
         if self.provider == LLMProvider.ANTHROPIC:
-            self.api_key = self.api_key or settings.anthropic_api_key
+            self.api_key = self.api_key or settings.anthropic_api_key or os.getenv("ANTHROPIC_API_KEY", "")
             self.model = self.model or settings.anthropic_model
             if not self.api_key:
-                raise ValueError("ANTHROPIC_API_KEY is required when using Anthropic provider")
+                logger.warning("ANTHROPIC_API_KEY is not configured yet. Will check environment at query time.")
         elif self.provider in (LLMProvider.GEMINI, LLMProvider.GOOGLE):
-            self.api_key = self.api_key or settings.google_api_key
+            self.api_key = self.api_key or settings.google_api_key or os.getenv("GOOGLE_API_KEY", "") or os.getenv("GEMINI_API_KEY", "")
             self.model = self.model or settings.gemini_model
             if not self.api_key:
-                raise ValueError("GOOGLE_API_KEY is required when using Gemini/Google provider")
+                logger.warning("GOOGLE_API_KEY is not configured yet. Will check environment at query time.")
         else:
             self.base_url = self.base_url or settings.lmstudio_base_url
             self.model = self.model or settings.lmstudio_model
@@ -67,9 +68,12 @@ class LLMClient:
 
     def _get_anthropic_client(self):
         """Lazy-load Anthropic client."""
+        api_key = self.api_key or os.getenv("ANTHROPIC_API_KEY", "")
+        if not api_key:
+            raise LLMError("ANTHROPIC_API_KEY is required for Claude generation. Please set ANTHROPIC_API_KEY in .env.")
         if self._anthropic_client is None:
             import anthropic
-            self._anthropic_client = anthropic.Anthropic(api_key=self.api_key, timeout=15.0, max_retries=1)
+            self._anthropic_client = anthropic.Anthropic(api_key=api_key, timeout=15.0, max_retries=1)
         return self._anthropic_client
 
     def _get_openai_client(self):
@@ -142,7 +146,13 @@ class LLMClient:
     ) -> str:
         """Generate using Google Gemini REST API."""
         import httpx
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent?key={self.api_key}"
+        from dotenv import load_dotenv
+        load_dotenv(override=True)
+        api_key = os.getenv("GOOGLE_API_KEY", "") or os.getenv("GEMINI_API_KEY", "") or self.api_key or get_settings().google_api_key
+        if not api_key or api_key in ("your_google_gemini_api_key_here", "your_gemini_api_key_here"):
+            raise LLMError("GOOGLE_API_KEY is not configured in .env. Please set your Google Gemini API key in .env.")
+        model = os.getenv("GEMINI_MODEL", "") or self.model or "gemini-3.6-flash"
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
         payload = {
             "contents": [
                 {"parts": [{"text": f"{system_prompt}\n\nUser Query: {user_prompt}" if system_prompt else user_prompt}]}

@@ -49,7 +49,8 @@ def build_index(
     embedding_model: str | None = None,
     provider: str | None = None,
     base_url: str | None = None,
-    batch_size: int = 64,
+    batch_size: int = 128,
+    max_passages: int | None = None,
     **chunker_kwargs,
 ) -> None:
     """Build FAISS index for a given chunking strategy.
@@ -61,7 +62,8 @@ def build_index(
         embedding_model: Embedding model name.
         provider: "local" or "lmstudio".
         base_url: LM Studio URL (if provider=lmstudio).
-        batch_size: Embedding batch size.
+        batch_size: Embedding batch size (larger on GPU).
+        max_passages: Maximum number of passages to process.
         **chunker_kwargs: Additional args for the chunker.
     """
     # Resolve paths
@@ -73,7 +75,11 @@ def build_index(
     # Load passages
     logger.info(f"Loading passages from {p_path}")
     passages = load_passages(p_path)
-    logger.info(f"Loaded {len(passages)} passages")
+    if max_passages and max_passages > 0:
+        passages = passages[:max_passages]
+        logger.info(f"Capped passages to {len(passages)} as requested")
+    else:
+        logger.info(f"Loaded {len(passages)} passages")
 
     # Initialize chunker
     logger.info(f"Using chunking strategy: {strategy}")
@@ -185,7 +191,8 @@ def main():
         default=None,
         help="LM Studio base URL (e.g. http://192.168.68.201:1234/v1)",
     )
-    parser.add_argument("--batch-size", type=int, default=64, help="Embedding batch size")
+    parser.add_argument("--batch-size", type=int, default=128, help="Embedding batch size")
+    parser.add_argument("--max-passages", type=int, default=None, help="Maximum number of passages to process (e.g. 2000)")
     args = parser.parse_args()
 
     logging.basicConfig(
@@ -201,6 +208,7 @@ def main():
         provider=args.provider,
         base_url=args.base_url,
         batch_size=args.batch_size,
+        max_passages=args.max_passages,
     )
 
 

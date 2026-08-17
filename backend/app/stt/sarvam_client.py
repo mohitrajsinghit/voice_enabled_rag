@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import io
 import logging
+import os
 import time
 
 import httpx
@@ -28,15 +29,15 @@ class SarvamClient:
     BASE_URL = "https://api.sarvam.ai"
     STT_ENDPOINT = "/speech-to-text"
 
-    def __init__(self, api_key: str):
+    def __init__(self, api_key: str = ""):
         """Initialize the Sarvam client.
 
         Args:
-            api_key: Sarvam AI API subscription key.
+            api_key: Sarvam AI API subscription key (optional at init).
         """
-        if not api_key:
-            raise ValueError("Sarvam API key is required")
         self.api_key = api_key
+        if not self.api_key:
+            logger.info("SARVAM_API_KEY not configured at startup. Audio transcription will check environment on demand.")
 
     @retry(
         stop=stop_after_attempt(3),
@@ -81,6 +82,12 @@ class SarvamClient:
             filename = "recording.flac"
             content_type = "audio/flac"
 
+        from dotenv import load_dotenv
+        load_dotenv(override=True)
+        api_key = os.getenv("SARVAM_API_KEY", "") or self.api_key
+        if not api_key or api_key in ("dummy", "your_sarvam_ai_api_key_here", "your_sarvam_api_key_here"):
+            raise SarvamSTTError("SARVAM_API_KEY is not configured in .env. Voice audio transcription requires a valid Sarvam AI API key. (You can also type questions using the text input below.)")
+
         try:
             async with httpx.AsyncClient(timeout=30.0) as client:
                 # Prepare multipart form data
@@ -96,7 +103,7 @@ class SarvamClient:
                 response = await client.post(
                     f"{self.BASE_URL}{self.STT_ENDPOINT}",
                     headers={
-                        "api-subscription-key": self.api_key,
+                        "api-subscription-key": api_key,
                     },
                     files=files,
                     data=data,

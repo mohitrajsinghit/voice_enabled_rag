@@ -117,7 +117,7 @@ async def lifespan(app: FastAPI):
         # Initialize components
         retriever = Retriever(faiss_store, embedder)
 
-        stt_client = SarvamClient(api_key=settings.sarvam_api_key) if settings.sarvam_api_key else SarvamClient(api_key="dummy")
+        stt_client = SarvamClient(api_key=settings.sarvam_api_key or os.getenv("SARVAM_API_KEY", ""))
         logger.info("STT client initialized")
 
         llm_client = LLMClient()
