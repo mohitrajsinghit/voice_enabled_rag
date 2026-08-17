@@ -24,6 +24,10 @@ RUN python -c "import nltk; nltk.download('punkt', quiet=True); nltk.download('p
 
 # Copy codebase and data files
 COPY . /app/
+
+# Build dataset and FAISS vector index during Docker image creation
+RUN python data/download_dataset.py --n-docs 5000 && python backend/app/indexing/build_index.py --strategy semantic
+
 RUN chown -R user:user /app /home/user
 
 # Switch to non-root user

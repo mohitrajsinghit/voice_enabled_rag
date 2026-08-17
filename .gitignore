@@ -46,12 +46,13 @@ htmlcov/
 # Data, Embeddings & Large Vector Index Files
 # =============================================================================
 data/raw/
-data/processed/*
-!data/processed/semantic/
-!data/processed/semantic/*
+data/processed/
 *.parquet
+*.index
+*.npy
 *.tar.gz
 *.zip
+frontend/public/assets/*.png
 
 # =============================================================================
 # Node & Frontend Build Artifacts
