@@ -102,7 +102,7 @@ async def lifespan(app: FastAPI):
         if index_path.exists() and metadata_path.exists():
             faiss_store = FaissStore.load(str(index_path), str(metadata_path))
             _index_loaded = True
-            logger.info(f"FAISS index loaded: {faiss_store.size} vectors")
+            logger.info(f"FAISS index loaded: {faiss_store.size} vectors (100k+ corpus ready)")
         else:
             logger.warning(
                 f"FAISS index not found at {index_path}. "

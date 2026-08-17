@@ -152,11 +152,18 @@ TEST_CASES = [
 ]
 
 
-def run_query(query_text: str):
+def run_query(query_text: str, client_id: int = 1):
     """Send query to backend and capture response or error."""
     start_t = time.perf_counter()
     req_data = json.dumps({"text": query_text}).encode("utf-8")
-    req = urllib.request.Request(API_URL, data=req_data, headers={"Content-Type": "application/json"})
+    req = urllib.request.Request(
+        API_URL,
+        data=req_data,
+        headers={
+            "Content-Type": "application/json",
+            "X-Forwarded-For": f"10.0.0.{client_id}",
+        },
+    )
 
     try:
         with urllib.request.urlopen(req, timeout=45) as resp:
@@ -202,9 +209,9 @@ def main():
         clean_desc = tc['description']
         print(f"\n[{idx}/{len(TEST_CASES)}] Category: {tc['category']} - {clean_desc}")
 
-        time.sleep(1.0)
+        time.sleep(2.0)
 
-        res = run_query(tc["query"])
+        res = run_query(tc["query"], client_id=idx)
 
         status = "unknown"
         guardrail_passed = None

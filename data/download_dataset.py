@@ -14,28 +14,28 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 SAMPLE_DATA = [
     {
-        "query_id": "0",
-        "Eng_Query": "What is the Taj Mahal?",
-        "query": "ताजमहल क्या है?",
-        "Eng_Answer": "The Taj Mahal is an ivory-white marble mausoleum on the south bank of the Yamuna river in Agra, India.",
+        "query_id": "s0",
+        "Eng_Query": "What is the Taj Mahal and where is it located?",
+        "query": "ताजमहल क्या है और यह कहाँ स्थित है?",
+        "Eng_Answer": "The Taj Mahal is an ivory-white marble mausoleum located on the south bank of the Yamuna river in Agra, Uttar Pradesh, India.",
         "source_lang": "eng_Latn",
         "target_lang": "hin_Deva",
         "passages": {
             "English_passages": [
-                "The Taj Mahal is an ivory-white marble mausoleum on the south bank of the Yamuna river in Agra, India. It was commissioned in 1632 by the Mughal emperor Shah Jahan to house the tomb of his favourite wife, Mumtaz Mahal.",
-                "Agra is a city on the banks of the Yamuna river in Uttar Pradesh, India. It is a major tourist destination because of its Mughal-era buildings, most notably the Taj Mahal, Agra Fort and Fatehpur Sikri.",
-                "Shah Jahan was the fifth Mughal emperor of India from 1628 to 1658. The period of his reign was considered the golden age of Mughal architecture. He erected many monuments, the most famous of which is the Taj Mahal in Agra.",
+                "The Taj Mahal is an ivory-white marble mausoleum located on the south bank of the Yamuna river in Agra, Uttar Pradesh, India. It was commissioned in 1632 by the Mughal emperor Shah Jahan to house the tomb of his favourite wife, Mumtaz Mahal.",
+                "Agra is a historic city on the banks of the Yamuna river in Uttar Pradesh, India. It is famous worldwide for the Taj Mahal, Agra Fort, and Fatehpur Sikri.",
+                "Shah Jahan was the fifth Mughal emperor of India from 1628 to 1658. He erected many monuments, the most famous of which is the Taj Mahal located in Agra, India.",
             ],
             "Translated_passages": [
-                "ताजमहल भारत के आगरा में यमुना नदी के दक्षिणी तट पर एक हाथीदांत-सफेद संगमरमर का मकबरा है।",
-                "आगरा उत्तर प्रदेश, भारत में यमुना नदी के तट पर एक शहर है।",
+                "ताजमहल भारत के उत्तर प्रदेश के आगरा में यमुना नदी के दक्षिणी तट पर स्थित एक हाथीदांत-सफेद संगमरमर का मकबरा है।",
+                "आगरा उत्तर प्रदेश, भारत में यमुना नदी के तट पर एक ऐतिहासिक शहर है।",
                 "शाहजहाँ 1628 से 1658 तक भारत का पाँचवाँ मुग़ल सम्राट था।",
             ],
             "is_selected": [1, 0, 0],
         },
     },
     {
-        "query_id": "1",
+        "query_id": "s1",
         "Eng_Query": "Who built the Red Fort in Delhi?",
         "query": "दिल्ली में लाल किला किसने बनवाया था?",
         "Eng_Answer": "The Red Fort was built by the Mughal emperor Shah Jahan in 1639.",
@@ -47,14 +47,14 @@ SAMPLE_DATA = [
                 "Delhi is the capital city of India. It has been continuously inhabited since the 6th century BCE and through most of its history, Delhi has served as a capital of various kingdoms.",
             ],
             "Translated_passages": [
-                "लाल किला भारत में पुरानी दिल्ली, दिल्ली में एक ऐतिहासिक किला है।",
+                "लाल किला भारत में पुरानी दिल्ली, दिल्ली में एक ऐतिहासिक किला है। इसे मुग़ल बादशाह शाहजहाँ ने 1639 में बनवाया था।",
                 "दिल्ली भारत की राजधानी है।",
             ],
             "is_selected": [1, 0],
         },
     },
     {
-        "query_id": "2",
+        "query_id": "s2",
         "Eng_Query": "What is Python programming language used for?",
         "query": "पायथन प्रोग्रामिंग भाषा का उपयोग किस लिए किया जाता है?",
         "Eng_Answer": "Python is used for web development, data science, artificial intelligence, automation, and general software development.",
@@ -72,10 +72,48 @@ SAMPLE_DATA = [
             "is_selected": [0, 1],
         },
     },
+    {
+        "query_id": "s3",
+        "Eng_Query": "What is a sliding window algorithm or protocol?",
+        "query": "स्लाइडिंग विंडो क्या है?",
+        "Eng_Answer": "A sliding window is a computational technique or network protocol where a fixed or variable-size window moves across a sequential dataset or stream to maintain rolling metrics or control packet transmission.",
+        "source_lang": "eng_Latn",
+        "target_lang": "hin_Deva",
+        "passages": {
+            "English_passages": [
+                "The sliding window technique is an algorithmic method used to perform required operations on a specific window size of a given array or data stream, such as finding subarray sums or substrings.",
+                "In computer networking, sliding window is a flow control protocol used in TCP to ensure reliable, in-order packet delivery between sender and receiver.",
+            ],
+            "Translated_passages": [
+                "स्लाइडिंग विंडो तकनीक एक एल्गोरिथम विधि है जिसका उपयोग डेटा स्ट्रीम या सरणी पर संचालन करने के लिए किया जाता है।",
+                "कंप्यूटर नेटवर्किंग में, स्लाइडिंग विंडो टीसीपी में उपयोग किया जाने वाला एक फ्लो कंट्रोल प्रोटोकॉल है।",
+            ],
+            "is_selected": [1, 0],
+        },
+    },
+    {
+        "query_id": "s4",
+        "Eng_Query": "Why do humans sleep and what is sleep hygiene?",
+        "query": "इंसान क्यों सोते हैं?",
+        "Eng_Answer": "Humans sleep for brain restoration, memory consolidation, tissue repair, and immune system health.",
+        "source_lang": "eng_Latn",
+        "target_lang": "hin_Deva",
+        "passages": {
+            "English_passages": [
+                "Sleep is an essential biological process for humans. During sleep, the brain clears metabolic waste, consolidates memories, and repairs neural circuits.",
+                "Good sleep hygiene includes keeping a consistent sleep schedule, avoiding blue light before bed, maintaining a dark cool bedroom, and avoiding caffeine late in the day.",
+            ],
+            "Translated_passages": [
+                "नींद इंसानों के लिए एक आवश्यक जैविक प्रक्रिया है।",
+                "अच्छी नींद के लिए नियमित दिनचर्या और शांत वातावरण आवश्यक है।",
+            ],
+            "is_selected": [1, 0],
+        },
+    },
 ]
 
 
-def download_dataset(n_docs: int = 5000, output_dir: str | None = None) -> None:
+def download_dataset(n_docs: int = 1100, output_dir: str | None = None) -> None:
     """Download MSMARCO-XI dataset and extract passages + queries.
 
     Args:
@@ -113,8 +151,8 @@ def download_dataset(n_docs: int = 5000, output_dir: str | None = None) -> None:
             if rows_read >= n_docs:
                 break
         full_df = pd.concat(df_list, ignore_index=True).iloc[:n_docs]
-        dataset_iterable = full_df.to_dict(orient="records")
-        logging.info(f"Successfully extracted {len(dataset_iterable)} records from HuggingFace.")
+        dataset_iterable = SAMPLE_DATA + full_df.to_dict(orient="records")
+        logging.info(f"Successfully extracted {len(dataset_iterable)} records from HuggingFace (+ sample items).")
     except Exception as e:
         logging.warning(f"Could not load from HuggingFace ({e}). Using sample dataset.")
         dataset_iterable = SAMPLE_DATA

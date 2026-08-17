@@ -1,4 +1,4 @@
-"""Dual-provider LLM client supporting Anthropic Claude and LM Studio."""
+"""Unified LLM client supporting Groq, Google Gemini, Anthropic Claude, and LM Studio."""
 from __future__ import annotations
 
 import json
@@ -19,10 +19,10 @@ class LLMError(Exception):
 
 
 class LLMClient:
-    """Unified LLM client supporting Anthropic Claude and LM Studio (OpenAI-compatible).
+    """Unified LLM client supporting Groq, Anthropic Claude, Gemini, and LM Studio (OpenAI-compatible).
 
     Selects provider based on the LLM_PROVIDER environment variable.
-    Both providers expose the same interface: generate(system_prompt, user_prompt) -> str.
+    All providers expose the same interface: generate(system_prompt, user_prompt) -> tuple[str, float].
     """
 
     def __init__(
@@ -35,8 +35,8 @@ class LLMClient:
         """Initialize the LLM client.
 
         Args:
-            provider: LLM provider (anthropic or lmstudio). Defaults to config.
-            api_key: API key (for Anthropic). Defaults to config.
+            provider: LLM provider (groq, gemini, anthropic, or lmstudio). Defaults to config.
+            api_key: API key. Defaults to config.
             base_url: Base URL (for LM Studio). Defaults to config.
             model: Model name. Defaults to config.
         """
@@ -49,7 +49,12 @@ class LLMClient:
         self.base_url = base_url
         self.model = model
 
-        if self.provider == LLMProvider.ANTHROPIC:
+        if self.provider == LLMProvider.GROQ:
+            self.api_key = self.api_key or settings.groq_api_key or os.getenv("GROQ_API_KEY", "")
+            self.model = self.model or settings.groq_model or os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
+            if not self.api_key:
+                logger.warning("GROQ_API_KEY is not configured yet. Will check environment at query time.")
+        elif self.provider == LLMProvider.ANTHROPIC:
             self.api_key = self.api_key or settings.anthropic_api_key or os.getenv("ANTHROPIC_API_KEY", "")
             self.model = self.model or settings.anthropic_model
             if not self.api_key:
@@ -117,7 +122,9 @@ class LLMClient:
         t0 = time.perf_counter()
 
         try:
-            if self.provider == LLMProvider.ANTHROPIC:
+            if self.provider == LLMProvider.GROQ:
+                text = self._generate_groq(system_prompt, user_prompt, max_tokens, temperature)
+            elif self.provider == LLMProvider.ANTHROPIC:
                 text = self._generate_anthropic(system_prompt, user_prompt, max_tokens, temperature)
             elif self.provider in (LLMProvider.GEMINI, LLMProvider.GOOGLE):
                 text = self._generate_gemini(system_prompt, user_prompt, max_tokens, temperature)
@@ -136,6 +143,55 @@ class LLMClient:
             latency_ms = (time.perf_counter() - t0) * 1000
             logger.error(f"LLM generation failed ({self.provider.value}): {e}")
             raise LLMError(f"LLM generation failed: {e}") from e
+
+    def _generate_groq(
+        self,
+        system_prompt: str,
+        user_prompt: str,
+        max_tokens: int,
+        temperature: float,
+    ) -> str:
+        """Generate using Groq REST API (OpenAI-compatible)."""
+        import httpx
+        from dotenv import load_dotenv
+        load_dotenv(override=True)
+        api_key = os.getenv("GROQ_API_KEY", "") or self.api_key or get_settings().groq_api_key
+        if not api_key or api_key in ("your_groq_api_key_here", ""):
+            raise LLMError("GROQ_API_KEY is not configured in .env. Please set your Groq API key in .env.")
+        model = os.getenv("GROQ_MODEL", "") or self.model or "openai/gpt-oss-120b"
+        url = "https://api.groq.com/openai/v1/chat/completions"
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+        }
+        messages = []
+        if system_prompt:
+            messages.append({"role": "system", "content": system_prompt})
+        messages.append({"role": "user", "content": user_prompt})
+
+        payload = {
+            "model": model,
+            "messages": messages,
+            "temperature": temperature,
+            "max_tokens": max_tokens,
+        }
+
+        response = None
+        for attempt in range(3):
+            response = httpx.post(url, json=payload, headers=headers, timeout=25.0)
+            if response.status_code == 429 and attempt < 2:
+                time.sleep(1.2)
+                continue
+            break
+
+        if response.status_code != 200:
+            raise LLMError(f"Groq API error ({response.status_code}): {response.text}")
+
+        data = response.json()
+        try:
+            return data["choices"][0]["message"]["content"]
+        except (KeyError, IndexError) as e:
+            raise LLMError(f"Unexpected Groq API response structure: {data}") from e
 
     def _generate_gemini(
         self,

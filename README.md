@@ -23,7 +23,7 @@ pinned: false
 
 A high-performance, production-hardened **Voice-Enabled Multilingual Retrieval-Augmented Generation (RAG)** pipeline designed for sub-millisecond vector search, end-to-end voice question answering across **14 Indic languages & English**, 4-tier safety guardrails, and sliding-window rate limiting.
 
-Built on the **`ai4bharat/MSMARCO-XI`** dataset using **Sarvam AI STT**, asymmetric **`multilingual-e5-small`** dense embeddings, sub-millisecond **FAISS HNSW** retrieval, and grounded **Gemini / LM Studio** generation.
+Built on the **`ai4bharat/MSMARCO-XI`** dataset (101,996 passages / 126,395 vectors) using **Sarvam AI STT**, asymmetric **`multilingual-e5-small`** dense embeddings, sub-millisecond **FAISS HNSW/FlatIP** retrieval, and grounded **Groq / Gemini / LM Studio** generation.
 
 ---
 
@@ -103,7 +103,7 @@ Built on the **`ai4bharat/MSMARCO-XI`** dataset using **Sarvam AI STT**, asymmet
 
 ## ✂️ Vast Chunking Strategies & Benchmark
 
-Per the hackathon specification, the dataset was processed and evaluated across **4 distinct chunking paradigms** on the **`ai4bharat/MSMARCO-XI`** dataset (4,995 indexed passages):
+Per the hackathon specification, the dataset was processed and evaluated across **4 distinct chunking paradigms** on the **`ai4bharat/MSMARCO-XI`** dataset (**101,996 indexed passages** yielding **126,395 vector chunks**):
 
 | Strategy | Paradigm | Description & Implementation |
 | :--- | :--- | :--- |

@@ -118,7 +118,7 @@ export default function ArchitectureModal({ onClose }) {
                   <span className="spec-tag">FAISS IndexFlatIP (0.69ms)</span>
                 </div>
                 <p>
-                  Indexed 4,995 passages with normalized inner-product cosine similarity. Sub-millisecond top-k retrieval in <strong>0.69ms P50</strong>.
+                  Indexed 101,996 passages (126,395 vector chunks) with normalized inner-product cosine similarity. Sub-millisecond top-k retrieval in <strong>0.69ms P50</strong>.
                 </p>
               </div>
 
@@ -126,7 +126,7 @@ export default function ArchitectureModal({ onClose }) {
                 <div className="spec-card-header">
                   <span className="spec-step-num">05</span>
                   <h4>🧠 Natural Grounded Answer Generation</h4>
-                  <span className="spec-tag">Gemini / LM Studio</span>
+                  <span className="spec-tag">Groq / Gemini / LM Studio</span>
                 </div>
                 <p>
                   Generates clean, fluent answers in the exact language of the user's query. Output is rendered via progressive typewriter streaming, accompanied by dedicated source evidence cards with exact similarity scores.
@@ -228,7 +228,7 @@ export default function ArchitectureModal({ onClose }) {
                   <span className="spec-tag">Zero Trust</span>
                 </div>
                 <p>
-                  All provider credentials (<code>SARVAM_API_KEY</code>, <code>GOOGLE_API_KEY</code>) reside strictly in server-side environment variables. Reverse proxy routing and CORS headers lock API access to authorized deployment origins.
+                  All provider credentials (<code>GROQ_API_KEY</code>, <code>SARVAM_API_KEY</code>) reside strictly in server-side environment variables. Reverse proxy routing and CORS headers lock API access to authorized deployment origins.
                 </p>
               </div>
 
@@ -326,11 +326,11 @@ export default function ArchitectureModal({ onClose }) {
                       <td><span className="status-pass">&lt; 200ms • PASS ✅</span></td>
                     </tr>
                     <tr>
-                      <td>Cloud LLM Generation (Gemini 2.5 Flash)</td>
-                      <td>850.0 ms</td>
-                      <td>1100.0 ms</td>
-                      <td>2400.0 ms</td>
-                      <td>🌐 Network Hops</td>
+                      <td>Cloud LLM Generation (Groq / Gemini)</td>
+                      <td>450.0 ms</td>
+                      <td>650.0 ms</td>
+                      <td>1200.0 ms</td>
+                      <td>⚡ Ultra-Fast LPU</td>
                     </tr>
                     <tr>
                       <td>Grounding Check & Citation Judge</td>

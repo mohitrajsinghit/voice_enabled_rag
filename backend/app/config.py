@@ -16,6 +16,7 @@ load_dotenv(_PROJECT_ROOT / ".env")
 
 
 class LLMProvider(str, Enum):
+    GROQ = "groq"
     ANTHROPIC = "anthropic"
     LMSTUDIO = "lmstudio"
     GEMINI = "gemini"
@@ -36,12 +37,14 @@ class Settings(BaseSettings):
     """Application settings loaded from environment variables."""
 
     # --- API Keys ---
+    groq_api_key: str = Field(default="", description="Groq API key")
     sarvam_api_key: str = Field(default="", description="Sarvam AI API key for STT")
     anthropic_api_key: str = Field(default="", description="Anthropic API key for Claude")
     google_api_key: str = Field(default="", description="Google Gemini API key")
 
     # --- LLM Provider ---
-    llm_provider: LLMProvider = Field(default=LLMProvider.GEMINI, description="LLM provider: gemini, anthropic, or lmstudio")
+    llm_provider: LLMProvider = Field(default=LLMProvider.GROQ, description="LLM provider: groq, gemini, anthropic, or lmstudio")
+    groq_model: str = Field(default="openai/gpt-oss-120b", description="Groq model name")
     gemini_model: str = Field(default="gemini-3.1-flash-lite", description="Gemini model name")
     lmstudio_base_url: str = Field(default="http://localhost:1234/v1", description="LM Studio API base URL")
     lmstudio_model: str = Field(default="local-model", description="LM Studio model name")

@@ -144,19 +144,20 @@ class SemanticChunker(Chunker):
         if not sentences:
             return []
 
-        # Single sentence → single chunk
-        if len(sentences) == 1:
+        # Short text (1-2 sentences within max tokens) -> cohesive single chunk directly
+        token_count = sum(len(s.split()) for s in sentences)
+        if len(sentences) <= 2 and token_count <= self.max_chunk_tokens:
             return [
                 Chunk(
                     id=f"{doc_id}_semantic_0",
-                    text=sentences[0],
+                    text=" ".join(sentences),
                     source_doc_id=doc_id,
                     strategy=self.name,
-                    metadata={**(metadata or {}), "sentence_count": 1, "token_count": len(sentences[0].split())},
+                    metadata={**(metadata or {}), "sentence_count": len(sentences), "token_count": token_count},
                 )
             ]
 
-        # Embed all sentences
+        # Embed all sentences (multi-sentence passages)
         if self._embedder is not None:
             embeddings = self._embedder.embed(sentences, show_progress=False)
         else:
