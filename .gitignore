@@ -46,10 +46,10 @@ htmlcov/
 # Data, Embeddings & Large Vector Index Files
 # =============================================================================
 data/raw/
-data/processed/
+data/processed/*
+!data/processed/semantic/
+!data/processed/semantic/*
 *.parquet
-*.index
-*.npy
 *.tar.gz
 *.zip
 
