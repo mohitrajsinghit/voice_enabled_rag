@@ -1,0 +1,46 @@
+# API Framework
+fastapi
+uvicorn[standard]
+python-multipart
+
+# Validation & Config
+pydantic>=2.0
+pydantic-settings
+
+# LLM Providers
+anthropic
+openai
+
+# Embeddings & Vector Search
+sentence-transformers
+faiss-cpu
+
+# Resilience
+tenacity
+
+# Dataset
+datasets
+pandas
+numpy
+
+# HTTP Client
+httpx
+
+# STT
+sarvamai
+
+# NLP
+nltk
+
+# Visualization
+matplotlib
+
+# Environment
+python-dotenv
+
+# Testing
+pytest
+pytest-asyncio
+
+# Logging
+structlog
