@@ -1,0 +1,17 @@
+.git/
+.venv/
+venv/
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+data/raw/
+__pycache__/
+*.pyc
+.pytest_cache/
+.coverage
+htmlcov/
+.env
+.env.*
+*.log
+scratch/

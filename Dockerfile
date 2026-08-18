@@ -19,14 +19,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Download NLTK data
+# Download NLTK data (needed for semantic and sentence chunking)
 RUN python -c "import nltk; nltk.download('punkt', quiet=True); nltk.download('punkt_tab', quiet=True)"
 
-# Copy codebase and data files
+# Copy pre-built codebase and data files (including pre-built data/processed/)
 COPY . /app/
-
-# Build dataset and FAISS vector index during Docker image creation
-RUN python data/download_dataset.py --n-docs 5000 && python backend/app/indexing/build_index.py --strategy semantic
 
 RUN chown -R user:user /app /home/user
 

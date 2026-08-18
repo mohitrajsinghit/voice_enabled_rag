@@ -78,50 +78,66 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 # Global pipeline instance
 _pipeline: VoiceRAGPipeline | None = None
 _index_loaded: bool = False
+_chunk_count: int = 0
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan: load models and index at startup."""
-    global _pipeline, _index_loaded
+    global _pipeline, _index_loaded, _chunk_count
 
     settings = get_settings()
     setup_logging(settings.log_level)
-    logger.info("Starting Voice RAG backend...")
+    logger.info("Starting Voice RAG backend on HuggingFace Spaces / Production...")
 
+    # 1. Eagerly load dense embedder
     try:
-        # Eagerly load embedder at startup (not lazily on first request)
         embedder = get_embedder()
         dim = embedder.dimension
-        logger.info(f"Embedder preloaded: dim={dim} (provider={settings.embedding_provider.value})")
+        logger.info(f"✅ Embedder preloaded: dim={dim} (provider={settings.embedding_provider.value})")
+    except Exception as e:
+        logger.error(f"❌ Failed to load embedder: {e}", exc_info=True)
+        raise
 
-        # Load FAISS index
+    # 2. Load FAISS index & chunk metadata from disk
+    faiss_store = None
+    try:
         index_path = settings.resolve_path(settings.faiss_index_path)
         metadata_path = settings.resolve_path(settings.chunk_metadata_path)
 
         if index_path.exists() and metadata_path.exists():
             faiss_store = FaissStore.load(str(index_path), str(metadata_path))
             _index_loaded = True
-            logger.info(f"FAISS index loaded: {faiss_store.size} vectors (100k+ corpus ready)")
+            _chunk_count = faiss_store.size
+            logger.info(f"✅ FAISS index loaded: {_chunk_count} vectors (ready for sub-ms search)")
         else:
             logger.warning(
-                f"FAISS index not found at {index_path}. "
-                "Run 'python backend/app/indexing/build_index.py' first."
+                f"⚠️ FAISS index not found at {index_path} or {metadata_path}. "
+                "Creating empty index fallback."
             )
-            # Create empty store for graceful degradation
             import faiss
             empty_index = faiss.IndexFlatIP(dim)
             faiss_store = FaissStore(index=empty_index, chunks=[])
             _index_loaded = False
+            _chunk_count = 0
+    except Exception as e:
+        logger.error(f"❌ Failed to load FAISS index from disk: {e}", exc_info=True)
+        import faiss
+        empty_index = faiss.IndexFlatIP(dim)
+        faiss_store = FaissStore(index=empty_index, chunks=[])
+        _index_loaded = False
+        _chunk_count = 0
 
-        # Initialize components
+    # 3. Initialize STT & LLM clients
+    try:
         retriever = Retriever(faiss_store, embedder)
 
-        stt_client = SarvamClient(api_key=settings.sarvam_api_key or os.getenv("SARVAM_API_KEY", ""))
-        logger.info("STT client initialized")
+        sarvam_key = os.getenv("SARVAM_API_KEY", "") or settings.sarvam_api_key
+        stt_client = SarvamClient(api_key=sarvam_key)
+        logger.info(f"✅ STT client initialized (Sarvam AI API key configured: {bool(sarvam_key and sarvam_key != 'your_sarvam_ai_api_key_here')})")
 
         llm_client = LLMClient()
-        logger.info(f"LLM client initialized: provider={llm_client.provider.value}, model={llm_client.model}")
+        logger.info(f"✅ LLM client initialized: provider={llm_client.provider.value}, model={llm_client.model}")
 
         centroid_path = settings.resolve_path(settings.corpus_centroid_path)
         input_filter = InputFilter(
@@ -142,11 +158,10 @@ async def lifespan(app: FastAPI):
             llm_client=llm_client,
             policy=policy,
         )
-
-        logger.info("Voice RAG pipeline initialized successfully!")
+        logger.info("🚀 Voice RAG pipeline fully initialized and ready to serve queries!")
 
     except Exception as e:
-        logger.error(f"Failed to initialize pipeline: {e}", exc_info=True)
+        logger.error(f"❌ Failed to initialize pipeline components: {e}", exc_info=True)
         _pipeline = None
 
     yield
@@ -185,6 +200,7 @@ class HealthResponse(BaseModel):
     """Health check response."""
     status: str
     index_loaded: bool
+    chunk_count: int = 0
     message: str = ""
 
 
@@ -196,6 +212,7 @@ async def health_check():
     return HealthResponse(
         status="ok" if _pipeline else "degraded",
         index_loaded=_index_loaded,
+        chunk_count=_chunk_count,
         message="" if _pipeline else "Pipeline not initialized",
     )
 
