@@ -142,12 +142,11 @@ Benchmarked across automated pipeline queries on the live 649,545-vector databas
 
 | Pipeline Stage | P50 (ms) | P70 (ms) | P100 (ms) | Target Spec | Status |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Voice STT Audio Ingestion (Sarvam AI)** | 0.01 ms* | 12.0 ms | 45.0 ms | Real-Time | 🎙️ Instant |
-| **Dense Query Embedding (`MiniLM-L12-v2`)** | 20.2 ms | 23.5 ms | 35.0 ms | Sub-50ms | ⚡ High Speed |
-| **FAISS Vector Search (650,000 Vectors)** | 32.7 ms | 39.8 ms | 55.2 ms | Sub-100ms | 🔍 Fast Search |
-| **🔥 TOTAL RETRIEVAL PIPELINE SUBTOTAL** | **52.9 ms** | **63.3 ms** | **90.2 ms** | **< 200 ms** | **PASS ✅ (<200ms SLA Met)** |
+| **Dense Query Embedding (`MiniLM-L12-v2`)** | 19.7 ms | 23.5 ms | 35.0 ms | Sub-50ms | ⚡ High Speed |
+| **FAISS Vector Search (650,000 Vectors)** | 37.4 ms | 39.8 ms | 55.2 ms | Sub-100ms | 🔍 Fast Search |
+| **🔥 TOTAL RETRIEVAL PIPELINE SUBTOTAL** | **57.1 ms** | **63.3 ms** | **90.2 ms** | **< 200 ms** | **PASS ✅ (<200ms SLA Met)** |
 
-> **Target SLA Note:** The entire voice-to-retrieval pipeline operates at **52.9ms P50** across 649,545 dense vectors, comfortably satisfying the hackathon **`< 200ms`** mandate with substantial headroom.
+> **Target SLA Note:** The entire retrieval pipeline operates at **57.1ms P50** across 649,545 dense vectors, comfortably satisfying the hackathon **`< 200ms`** mandate with substantial headroom.
 
 ---
 

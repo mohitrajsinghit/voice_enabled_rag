@@ -104,21 +104,21 @@ export default function ArchitectureModal({ onClose }) {
                 <div className="spec-card-header">
                   <span className="spec-step-num">03</span>
                   <h4>⚡ Vector Embedding Engine</h4>
-                  <span className="spec-tag">intfloat/multilingual-e5-small</span>
+                  <span className="spec-tag">paraphrase-multilingual-MiniLM-L12-v2</span>
                 </div>
                 <p>
-                  384-dimensional dense vectors with asymmetric prefixing (<code>passage: </code> for corpus indexing, <code>query: </code> for search). Achieves <strong>81.6%–90.5% cross-lingual alignment</strong> across all 14 Indic scripts in ~20ms.
+                  384-dimensional dense vectors with multilingual semantic alignment. Generates high-fidelity embeddings across all 14 Indic scripts in ~20ms.
                 </p>
               </div>
 
               <div className="spec-card">
                 <div className="spec-card-header">
                   <span className="spec-step-num">04</span>
-                  <h4>🔍 Sub-Millisecond Vector Database</h4>
-                  <span className="spec-tag">FAISS IndexFlatIP (0.69ms)</span>
+                  <h4>🔍 Fast 650k Vector Database</h4>
+                  <span className="spec-tag">FAISS IndexFlatIP (37.4ms)</span>
                 </div>
                 <p>
-                  Indexed 509,110 passages (649,545 vector chunks) with normalized inner-product cosine similarity. Sub-millisecond top-k retrieval in <strong>0.85ms P50</strong>.
+                  Indexed 509,110 passages (649,545 dense vector chunks) with normalized inner-product cosine similarity. Sub-40ms top-k retrieval across the entire half-million dataset.
                 </p>
               </div>
 
@@ -289,7 +289,7 @@ export default function ArchitectureModal({ onClose }) {
           {activeTab === 'latency' && (
             <div className="arch-section-group">
               <div className="spec-highlight-banner" style={{ borderColor: 'rgba(16, 185, 129, 0.4)', background: 'rgba(16, 185, 129, 0.08)' }}>
-                <strong style={{ color: '#34d399' }}>⚡ Retrieval Subtotal Latency:</strong> <strong>52.9ms P50</strong> (Comfortably beating the <strong>&lt; 200ms target</strong> ✅ across 650,000 vectors).
+                <strong style={{ color: '#34d399' }}>⚡ Retrieval Subtotal Latency:</strong> <strong>57.1ms P50</strong> (Comfortably beating the <strong>&lt; 200ms target</strong> ✅ across 650,000 vectors).
               </div>
 
               <div className="indic-table-wrap">
@@ -305,29 +305,22 @@ export default function ArchitectureModal({ onClose }) {
                   </thead>
                   <tbody>
                     <tr>
-                      <td>Sarvam AI STT (Voice Transcription)</td>
-                      <td>0.01 ms*</td>
-                      <td>12.0 ms</td>
-                      <td>45.0 ms</td>
-                      <td>🎙️ Real-Time</td>
-                    </tr>
-                    <tr>
                       <td>Dense Query Embedding (<code>MiniLM-L12-v2</code>)</td>
-                      <td>20.2 ms</td>
+                      <td>19.7 ms</td>
                       <td>23.5 ms</td>
                       <td>35.0 ms</td>
                       <td>⚡ Sub-50ms</td>
                     </tr>
                     <tr>
                       <td>FAISS Vector Search (650,000 Vectors)</td>
-                      <td>32.7 ms</td>
+                      <td>37.4 ms</td>
                       <td>39.8 ms</td>
                       <td>55.2 ms</td>
                       <td>🔍 Fast Search</td>
                     </tr>
                     <tr style={{ background: 'rgba(16, 185, 129, 0.15)', fontWeight: 700 }}>
                       <td><strong>⚡ Total Retrieval Pipeline Subtotal</strong></td>
-                      <td><strong>52.9 ms</strong></td>
+                      <td><strong>57.1 ms</strong></td>
                       <td><strong>63.3 ms</strong></td>
                       <td><strong>90.2 ms</strong></td>
                       <td><span className="status-pass">&lt; 200ms Target Met ✅</span></td>

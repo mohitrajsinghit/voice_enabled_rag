@@ -127,15 +127,14 @@ A core requirement of the hackathon was ensuring the **retrieval pipeline comple
 
 | Pipeline Stage | P50 Latency (ms) | P70 Latency (ms) | P100 Latency (ms) | Hackathon SLA | Status |
 | :--- | :---: | :---: | :---: | :---: | :---: |
-| **1. Sarvam AI Voice STT Ingestion** | **0.02 ms** | 12.0 ms | 45.0 ms | Real-Time | 🎙️ Instant |
-| **2. Dense Query Embedding (`MiniLM-L12-v2`)** | **19.7 ms** | 23.5 ms | 35.0 ms | < 50 ms | ⚡ Optimal |
-| **3. FAISS Vector Search across 650k Vectors** | **37.4 ms** | 39.8 ms | 55.2 ms | < 100 ms | 🔍 Sub-40ms |
+| **1. Dense Query Embedding (`MiniLM-L12-v2`)** | **19.7 ms** | 23.5 ms | 35.0 ms | < 50 ms | ⚡ Optimal |
+| **2. FAISS Vector Search across 650k Vectors** | **37.4 ms** | 39.8 ms | 55.2 ms | < 100 ms | 🔍 Sub-40ms |
 | **🔥 TOTAL RETRIEVAL PIPELINE SUBTOTAL** | **`57.1 ms`** | **`63.3 ms`** | **`90.2 ms`** | **`< 200 ms`** | 🟢 **PASS (3.5x Headroom)** |
 
 ### 🛠️ Telemetry HUD Design
 The frontend features a real-time HUD (Heads-Up Display) badge rendered on every response:
 * Dynamic Green Indicator: `Retrieval <200ms Target Met (57.1ms) ✅`.
-* Real-time breakdown pills for Voice STT, Query Embedding, FAISS Vector Search, and Total Retrieval.
+* Real-time 3-stage breakdown pills: **Query Embed (e5)**, **FAISS Search (650k)**, and **Retrieval Total**.
 
 ---
 
@@ -279,12 +278,11 @@ Use this structured script to record your project walkthrough video.
 > *"Notice the instant transcription from Sarvam AI, followed by the typewriter reveal of the grounded answer with exact citation sources.*
 > 
 > *Now, look at our **High-Precision Telemetry HUD**:*
-> * *STT Ingestion: 0.02 ms*
-> * *Query Embedding: 19.7 ms*
+> * *Query Embedding (e5): 19.7 ms*
 > * *FAISS Vector Search across 650,000 vectors: 37.4 ms*
 > * *Total Retrieval Pipeline: **57.1 ms**.*
 > 
-> *This crushes the hackathon's `< 200ms` requirement with more than 3x headroom!"*
+> *This crushes the hackathon's `< 200ms` requirement with more than 3.5x headroom!"*
 
 ---
 

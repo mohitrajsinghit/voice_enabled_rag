@@ -4,14 +4,12 @@ import React from 'react';
  * Latency stages configuration and labels
  */
 const STAGE_CONFIG = {
-  transcribe_ms: { label: 'Sarvam STT', classKey: 'stt', icon: '🎙️' },
   embed_query_ms: { label: 'Query Embed (e5)', classKey: 'embed', icon: '⚡' },
   faiss_search_ms: { label: 'FAISS Search', classKey: 'search', icon: '🔍' },
   retrieval_total_ms: { label: 'Retrieval Total', classKey: 'retrieval', icon: '⚡' },
 };
 
 const DISPLAY_STAGES = [
-  'transcribe_ms',
   'embed_query_ms',
   'faiss_search_ms',
   'retrieval_total_ms',
