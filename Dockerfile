@@ -1,12 +1,5 @@
 FROM python:3.11-slim
 
-# Create non-root user for Hugging Face Spaces compatibility
-RUN useradd -m -u 1000 user
-ENV HOME=/home/user \
-    PATH=/home/user/.local/bin:$PATH \
-    PYTHONPATH=/app \
-    PORT=7860
-
 WORKDIR /app
 
 # Install system dependencies
@@ -22,15 +15,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Download NLTK data (needed for semantic and sentence chunking)
 RUN python -c "import nltk; nltk.download('punkt', quiet=True); nltk.download('punkt_tab', quiet=True)"
 
-# Copy pre-built codebase and data files (including pre-built data/processed/)
+# Copy application code
 COPY . /app/
 
-RUN chown -R user:user /app /home/user
+EXPOSE 8000
 
-# Switch to non-root user
-USER user
-
-EXPOSE 7860
-
-# Run FastAPI backend on port 7860 (Hugging Face Spaces default port)
-CMD ["uvicorn", "backend.app.main:app", "--host", "0.0.0.0", "--port", "7860"]
+# Run FastAPI backend
+CMD ["uvicorn", "backend.app.main:app", "--host", "0.0.0.0", "--port", "8000"]

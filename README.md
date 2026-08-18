@@ -1,13 +1,3 @@
----
-title: Voice Enabled Multilingual RAG
-emoji: 🎙️
-colorFrom: indigo
-colorTo: purple
-sdk: docker
-app_port: 7860
-pinned: false
----
-
 # 🎙️ Voice-Enabled Multilingual RAG System
 ### *Hacker House Goa 2026 • Task 2 Submission • #RAGInGoa*
 

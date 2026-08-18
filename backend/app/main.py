@@ -88,7 +88,7 @@ async def lifespan(app: FastAPI):
 
     settings = get_settings()
     setup_logging(settings.log_level)
-    logger.info("Starting Voice RAG backend on HuggingFace Spaces / Production...")
+    logger.info("Starting Voice RAG backend server...")
 
     # 1. Eagerly load dense embedder
     try:
