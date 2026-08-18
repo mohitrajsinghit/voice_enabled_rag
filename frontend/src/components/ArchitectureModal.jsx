@@ -118,7 +118,7 @@ export default function ArchitectureModal({ onClose }) {
                   <span className="spec-tag">FAISS IndexFlatIP (0.69ms)</span>
                 </div>
                 <p>
-                  Indexed 101,996 passages (126,395 vector chunks) with normalized inner-product cosine similarity. Sub-millisecond top-k retrieval in <strong>0.69ms P50</strong>.
+                  Indexed 509,110 passages (649,545 vector chunks) with normalized inner-product cosine similarity. Sub-millisecond top-k retrieval in <strong>0.85ms P50</strong>.
                 </p>
               </div>
 

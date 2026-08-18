@@ -109,7 +109,7 @@ async def lifespan(app: FastAPI):
             faiss_store = FaissStore.load(str(index_path), str(metadata_path))
             _index_loaded = True
             _chunk_count = faiss_store.size
-            logger.info(f"✅ FAISS index loaded: {_chunk_count} vectors (ready for sub-ms search)")
+            logger.info(f"✅ FAISS index loaded: {_chunk_count} vectors (500k+ corpus ready)")
         else:
             logger.warning(
                 f"⚠️ FAISS index not found at {index_path} or {metadata_path}. "
