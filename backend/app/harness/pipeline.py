@@ -89,8 +89,10 @@ class InputGuardrailStage(PipelineStage):
             return ctx
 
         try:
-            verdict = self.input_filter.check(ctx.transcript.text)
+            verdict, emb = self.input_filter.check(ctx.transcript.text, query_embedding=ctx.query_embedding)
             ctx.input_guardrail = verdict
+            if emb is not None:
+                ctx.query_embedding = emb
 
             if not verdict.passed:
                 ctx.should_stop = True
@@ -126,6 +128,7 @@ class RetrieveStage(PipelineStage):
             chunks, latencies = self.retriever.retrieve(
                 ctx.transcript.text,
                 top_k=settings.top_k,
+                query_embedding=ctx.query_embedding,
             )
             ctx.retrieved_chunks = chunks
             ctx.latencies.update(latencies)

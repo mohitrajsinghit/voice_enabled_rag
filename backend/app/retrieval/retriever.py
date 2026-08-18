@@ -32,12 +32,14 @@ class Retriever:
         self,
         query: str,
         top_k: int = 5,
+        query_embedding: np.ndarray | None = None,
     ) -> tuple[list[RetrievedChunk], dict[str, float]]:
         """Retrieve relevant chunks for a query.
 
         Args:
             query: Query text string.
             top_k: Number of chunks to retrieve.
+            query_embedding: Pre-computed query vector (optional).
 
         Returns:
             Tuple of (retrieved chunks, latency dict with embed_query_ms and faiss_search_ms).
@@ -45,10 +47,13 @@ class Retriever:
         if not query or not query.strip():
             return [], {"embed_query_ms": 0, "faiss_search_ms": 0}
 
-        # Embed query
+        # Embed query if not pre-computed
         t0 = time.perf_counter()
-        query_embedding = self.embedder.embed_query(query)
-        embed_ms = (time.perf_counter() - t0) * 1000
+        if query_embedding is None:
+            query_embedding = self.embedder.embed_query(query)
+            embed_ms = (time.perf_counter() - t0) * 1000
+        else:
+            embed_ms = 0.0
 
         # FAISS search
         t1 = time.perf_counter()

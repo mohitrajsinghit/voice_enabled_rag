@@ -6,9 +6,9 @@
 
 | Stage | P50 (ms) | P70 (ms) | P100 (ms) |
 |-------|----------|----------|-----------|
-| Embed Query | 20.2 | 23.5 | 82.3 |
-| Faiss Search | 0.7 | 0.7 | 1.6 |
-| Retrieval Total | 20.9 | 24.2 | 83.0 |
+| Embed Query | 7.2 | 8.0 | 16.5 |
+| Faiss Search | 0.5 | 0.6 | 4.6 |
+| Retrieval Total | 7.8 | 8.6 | 17.9 |
 
 ## Full Pipeline (includes LLM generation)
 
@@ -16,7 +16,7 @@
 |-------|----------|----------|-----------|
 | Generation | 850.0 | 1100.0 | 2400.0 |
 | Grounding Check | 210.0 | 280.0 | 600.0 |
-| End To End | 1080.9 | 1404.2 | 3083.0 |
+| End To End | 1067.8 | 1388.6 | 3017.9 |
 
 ## Note
 

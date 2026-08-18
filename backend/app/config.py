@@ -54,11 +54,13 @@ class Settings(BaseSettings):
     embedding_provider: EmbeddingProvider = Field(default=EmbeddingProvider.LOCAL, description="Embedding provider: local or lmstudio")
     embedding_model: str = Field(default="paraphrase-multilingual-MiniLM-L12-v2", description="Local sentence transformer model")
     lmstudio_embedding_model: str = Field(default="text-embedding-qwen3-embedding-0.6b", description="LM Studio embedding model name")
+    use_onnx_embedding: bool = Field(default=True, description="Use ONNX Runtime for faster CPU embedding inference")
 
     # --- FAISS Index ---
     faiss_index_path: str = Field(default="./data/processed/semantic/faiss.index", description="Path to FAISS index file")
     chunk_metadata_path: str = Field(default="./data/processed/semantic/chunks.jsonl", description="Path to chunk metadata JSONL")
     corpus_centroid_path: str = Field(default="./data/processed/semantic/centroid.npy", description="Path to corpus centroid embedding")
+    faiss_nprobe: int = Field(default=10, description="Number of IVF clusters to probe (only used with IVF index)")
 
     # --- Retrieval ---
     default_chunk_strategy: str = Field(default="semantic", description="Default chunking strategy")

@@ -51,6 +51,7 @@ def build_index(
     base_url: str | None = None,
     batch_size: int = 128,
     max_passages: int | None = None,
+    index_type: str = "flat",
     **chunker_kwargs,
 ) -> None:
     """Build FAISS index for a given chunking strategy.
@@ -64,6 +65,7 @@ def build_index(
         base_url: LM Studio URL (if provider=lmstudio).
         batch_size: Embedding batch size (larger on GPU).
         max_passages: Maximum number of passages to process.
+        index_type: FAISS index type: 'flat' (exact) or 'ivf' (approximate, faster for large datasets).
         **chunker_kwargs: Additional args for the chunker.
     """
     # Resolve paths
@@ -121,9 +123,24 @@ def build_index(
 
     # Build FAISS index (Inner Product for normalized vectors = cosine similarity)
     dim = embeddings.shape[1]
-    logger.info(f"Building FAISS IndexFlatIP (dim={dim}, n={len(embeddings)})")
-    index = faiss.IndexFlatIP(dim)
-    index.add(embeddings)
+    n_vectors = len(embeddings)
+
+    if index_type == "ivf":
+        # IVF index: approximate nearest neighbor with clustering
+        nlist = max(16, int(4 * np.sqrt(n_vectors)))  # Rule of thumb: 4*sqrt(n)
+        logger.info(f"Building FAISS IndexIVFFlat (dim={dim}, n={n_vectors}, nlist={nlist})")
+        quantizer = faiss.IndexFlatIP(dim)
+        index = faiss.IndexIVFFlat(quantizer, dim, nlist, faiss.METRIC_INNER_PRODUCT)
+        logger.info("Training IVF index...")
+        index.train(embeddings)
+        index.add(embeddings)
+        index.nprobe = 10  # Default search-time probe count
+        logger.info(f"IVF index built: {nlist} clusters, nprobe=10")
+    else:
+        # Flat index: exact brute-force search
+        logger.info(f"Building FAISS IndexFlatIP (dim={dim}, n={n_vectors})")
+        index = faiss.IndexFlatIP(dim)
+        index.add(embeddings)
 
     # Save index
     index_path = out_dir / "faiss.index"
@@ -193,6 +210,13 @@ def main():
     )
     parser.add_argument("--batch-size", type=int, default=128, help="Embedding batch size")
     parser.add_argument("--max-passages", type=int, default=None, help="Maximum number of passages to process (e.g. 2000)")
+    parser.add_argument(
+        "--index-type",
+        type=str,
+        default="flat",
+        choices=["flat", "ivf"],
+        help="FAISS index type: 'flat' (exact brute-force) or 'ivf' (approximate, faster for large datasets)",
+    )
     args = parser.parse_args()
 
     logging.basicConfig(
@@ -209,6 +233,7 @@ def main():
         base_url=args.base_url,
         batch_size=args.batch_size,
         max_passages=args.max_passages,
+        index_type=args.index_type,
     )
 
 

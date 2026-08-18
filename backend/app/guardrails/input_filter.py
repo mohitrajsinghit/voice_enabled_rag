@@ -90,21 +90,25 @@ class InputFilter:
 
         return GuardrailVerdict(passed=True, category="ok")
 
-    def check_off_topic(self, text: str) -> GuardrailVerdict:
+    def check_off_topic(
+        self, text: str, query_embedding: np.ndarray | None = None
+    ) -> tuple[GuardrailVerdict, np.ndarray | None]:
         """Check if query is off-topic relative to the corpus.
 
         Args:
             text: Query text to check.
+            query_embedding: Pre-computed query vector (optional).
 
         Returns:
-            GuardrailVerdict with category="off_topic" if below threshold.
+            Tuple of (GuardrailVerdict, query_embedding).
         """
-        if self._centroid is None:
-            # Can't check without centroid — pass through
-            return GuardrailVerdict(passed=True, category="ok")
+        if self._centroid is None or self.off_topic_threshold <= 0.0:
+            # Off-topic check disabled by config or missing centroid
+            return GuardrailVerdict(passed=True, category="ok"), query_embedding
 
-        # Embed query
-        query_embedding = self.embedder.embed_query(text)
+        # Embed query if not provided
+        if query_embedding is None:
+            query_embedding = self.embedder.embed_query(text)
 
         # Compute cosine similarity with corpus centroid
         similarity = float(np.dot(query_embedding, self._centroid))
@@ -115,27 +119,33 @@ class InputFilter:
         )
 
         if similarity < self.off_topic_threshold:
-            return GuardrailVerdict(
-                passed=False,
-                reason=f"Query appears off-topic (similarity={similarity:.3f} < threshold={self.off_topic_threshold})",
-                category="off_topic",
+            return (
+                GuardrailVerdict(
+                    passed=False,
+                    reason=f"Query appears off-topic (similarity={similarity:.3f} < threshold={self.off_topic_threshold})",
+                    category="off_topic",
+                ),
+                query_embedding,
             )
 
-        return GuardrailVerdict(passed=True, category="ok")
+        return GuardrailVerdict(passed=True, category="ok"), query_embedding
 
-    def check(self, text: str) -> GuardrailVerdict:
+    def check(
+        self, text: str, query_embedding: np.ndarray | None = None
+    ) -> tuple[GuardrailVerdict, np.ndarray | None]:
         """Run all input checks: safety first, then off-topic.
 
         Args:
             text: Input text to check.
+            query_embedding: Pre-computed query vector (optional).
 
         Returns:
-            GuardrailVerdict — first failing check wins.
+            Tuple of (GuardrailVerdict, query_embedding).
         """
-        # Safety check first (cheaper)
+        # Safety check first (cheaper regex)
         safety = self.check_safety(text)
         if not safety.passed:
-            return safety
+            return safety, query_embedding
 
         # Off-topic check
-        return self.check_off_topic(text)
+        return self.check_off_topic(text, query_embedding=query_embedding)

@@ -14,6 +14,8 @@ openai
 # Embeddings & Vector Search
 sentence-transformers
 faiss-cpu
+onnxruntime
+optimum[onnxruntime]
 
 # Resilience
 tenacity

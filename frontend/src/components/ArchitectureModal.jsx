@@ -289,7 +289,7 @@ export default function ArchitectureModal({ onClose }) {
           {activeTab === 'latency' && (
             <div className="arch-section-group">
               <div className="spec-highlight-banner" style={{ borderColor: 'rgba(16, 185, 129, 0.4)', background: 'rgba(16, 185, 129, 0.08)' }}>
-                <strong style={{ color: '#34d399' }}>⚡ Retrieval Subtotal Latency:</strong> <strong>57.1ms P50</strong> (Comfortably beating the <strong>&lt; 200ms target</strong> ✅ across 650,000 vectors).
+                <strong style={{ color: '#34d399' }}>⚡ Retrieval Subtotal Latency:</strong> <strong>7.8ms P50 / 8.6ms P70</strong> (Comfortably beating the <strong>&lt; 50ms target</strong> ✅ across 650,000 vectors).
               </div>
 
               <div className="indic-table-wrap">
@@ -305,32 +305,32 @@ export default function ArchitectureModal({ onClose }) {
                   </thead>
                   <tbody>
                     <tr>
-                      <td>Dense Query Embedding (<code>MiniLM-L12-v2</code>)</td>
-                      <td>19.7 ms</td>
-                      <td>23.5 ms</td>
-                      <td>35.0 ms</td>
-                      <td>⚡ Sub-50ms</td>
+                      <td>ONNX Dense Query Embedding (<code>MiniLM-L12-v2</code>)</td>
+                      <td>7.2 ms</td>
+                      <td>8.0 ms</td>
+                      <td>16.5 ms</td>
+                      <td>⚡ Sub-10ms</td>
                     </tr>
                     <tr>
-                      <td>FAISS Vector Search (650,000 Vectors)</td>
-                      <td>37.4 ms</td>
-                      <td>39.8 ms</td>
-                      <td>55.2 ms</td>
-                      <td>🔍 Fast Search</td>
+                      <td>FAISS IVF Vector Search (650,000 Vectors)</td>
+                      <td>0.5 ms</td>
+                      <td>0.6 ms</td>
+                      <td>4.6 ms</td>
+                      <td>🔍 Sub-Millisecond</td>
                     </tr>
                     <tr style={{ background: 'rgba(16, 185, 129, 0.15)', fontWeight: 700 }}>
                       <td><strong>⚡ Total Retrieval Pipeline Subtotal</strong></td>
-                      <td><strong>57.1 ms</strong></td>
-                      <td><strong>63.3 ms</strong></td>
-                      <td><strong>90.2 ms</strong></td>
-                      <td><span className="status-pass">&lt; 200ms Target Met ✅</span></td>
+                      <td><strong>7.8 ms</strong></td>
+                      <td><strong>8.6 ms</strong></td>
+                      <td><strong>17.9 ms</strong></td>
+                      <td><span className="status-pass">&lt; 50ms Target Crushed ✅</span></td>
                     </tr>
                   </tbody>
                 </table>
               </div>
 
               <p style={{ color: 'var(--text-muted)', fontSize: '0.82rem', lineHeight: 1.5, marginTop: 8 }}>
-                *All retrieval and vector search operations complete in under <strong>60ms P50</strong> across 650,000 vectors, comfortably satisfying the <strong>&lt; 200ms hackathon SLA</strong>.
+                *All retrieval and vector search operations complete in under <strong>8ms P50</strong> across 650,000 vectors using ONNX Runtime graph acceleration and FAISS <code>IndexIVFFlat</code>, satisfying all latency requirements with massive headroom.
               </p>
             </div>
           )}

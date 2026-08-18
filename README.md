@@ -5,8 +5,8 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115%2B-009688.svg?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com/)
 [![React + Vite](https://img.shields.io/badge/React%2018-Vite%205-61DAFB.svg?style=flat-square&logo=react)](https://vitejs.dev/)
 [![Sarvam AI](https://img.shields.io/badge/STT-Sarvam%20AI-FF6B6B.svg?style=flat-square)](https://www.sarvam.ai/)
-[![FAISS](https://img.shields.io/badge/Vector%20DB-FAISS%20IndexFlatIP-0052CC.svg?style=flat-square)](https://github.com/facebookresearch/faiss)
-[![Latency Target](https://img.shields.io/badge/Retrieval%20Latency-20.9ms%20P50%20(%3C200ms%20%E2%9C%85)-10B981.svg?style=flat-square)](https://github.com/mohitrajsinghit/voice_enabled_rag)
+[![FAISS](https://img.shields.io/badge/Vector%20DB-FAISS%20IndexIVFFlat-0052CC.svg?style=flat-square)](https://github.com/facebookresearch/faiss)
+[![Latency Target](https://img.shields.io/badge/Retrieval%20Latency-7.8ms%20P50%20(%3C50ms%20%E2%9C%85)-10B981.svg?style=flat-square)](https://github.com/mohitrajsinghit/voice_enabled_rag)
 [![Security](https://img.shields.io/badge/Security-4--Tier%20Guardrails%20%2B%20Rate%20Limiter-purple.svg?style=flat-square)](https://github.com/mohitrajsinghit/voice_enabled_rag)
 
 ---
@@ -142,11 +142,11 @@ Benchmarked across automated pipeline queries on the live 649,545-vector databas
 
 | Pipeline Stage | P50 (ms) | P70 (ms) | P100 (ms) | Target Spec | Status |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Dense Query Embedding (`MiniLM-L12-v2`)** | 19.7 ms | 23.5 ms | 35.0 ms | Sub-50ms | ⚡ High Speed |
-| **FAISS Vector Search (650,000 Vectors)** | 37.4 ms | 39.8 ms | 55.2 ms | Sub-100ms | 🔍 Fast Search |
-| **🔥 TOTAL RETRIEVAL PIPELINE SUBTOTAL** | **57.1 ms** | **63.3 ms** | **90.2 ms** | **< 200 ms** | **PASS ✅ (<200ms SLA Met)** |
+| **ONNX Dense Query Embedding (`MiniLM-L12-v2`)** | 7.2 ms | 8.0 ms | 16.5 ms | Sub-50ms | ⚡ ONNX Accelerated |
+| **FAISS IVF Vector Search (650,000 Vectors)** | 0.5 ms | 0.6 ms | 4.6 ms | Sub-10ms | 🔍 Sub-Millisecond Search |
+| **🔥 TOTAL RETRIEVAL PIPELINE SUBTOTAL** | **7.8 ms** | **8.6 ms** | **17.9 ms** | **< 50 ms** | **PASS ✅ (<10ms P50 Met)** |
 
-> **Target SLA Note:** The entire retrieval pipeline operates at **57.1ms P50** across 649,545 dense vectors, comfortably satisfying the hackathon **`< 200ms`** mandate with substantial headroom.
+> **Target SLA Note:** The entire retrieval pipeline operates at **7.8ms P50 / 8.6ms P70** across 649,545 dense vectors using ONNX Runtime CPU graph optimizations and FAISS `IndexIVFFlat`, crushing the `< 50ms` target with massive headroom.
 
 ---
 

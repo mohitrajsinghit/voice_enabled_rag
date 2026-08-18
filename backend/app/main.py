@@ -95,6 +95,11 @@ async def lifespan(app: FastAPI):
         embedder = get_embedder()
         dim = embedder.dimension
         logger.info(f"✅ Embedder preloaded: dim={dim} (provider={settings.embedding_provider.value})")
+
+        # Warmup: run dummy embeddings to eliminate cold-start latency spikes
+        if hasattr(embedder, "warmup"):
+            embedder.warmup()
+            logger.info("✅ Embedder warmup complete — first-query latency eliminated")
     except Exception as e:
         logger.error(f"❌ Failed to load embedder: {e}", exc_info=True)
         raise
@@ -158,7 +163,10 @@ async def lifespan(app: FastAPI):
             llm_client=llm_client,
             policy=policy,
         )
-        logger.info("🚀 Voice RAG pipeline fully initialized and ready to serve queries!")
+
+        # Warmup retriever end-to-end (primes ONNX inference + FAISS index)
+        retriever.retrieve("startup warmup probe", top_k=settings.top_k)
+        logger.info("🚀 Voice RAG pipeline fully initialized and warmed up!")
 
     except Exception as e:
         logger.error(f"❌ Failed to initialize pipeline components: {e}", exc_info=True)

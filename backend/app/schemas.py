@@ -62,6 +62,7 @@ class PipelineContext(BaseModel):
     # Stage outputs
     transcript: TranscriptResult | None = None
     input_guardrail: GuardrailVerdict | None = None
+    query_embedding: Any | None = None
     retrieved_chunks: list[RetrievedChunk] = Field(default_factory=list)
     generated_answer: str | None = None
     grounding_verdict: GuardrailVerdict | None = None

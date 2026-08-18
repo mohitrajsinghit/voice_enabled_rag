@@ -90,7 +90,10 @@ def run_benchmark(
     retriever = Retriever(faiss_store, embedder)
 
     # Warmup embedder and FAISS to measure true steady-state latency
-    _ = embedder.model
+    if hasattr(embedder, "warmup"):
+        embedder.warmup()
+    elif hasattr(embedder, "model"):
+        _ = embedder.model
     retriever.retrieve("warmup query", top_k=settings.top_k)
 
     # Run benchmark

@@ -60,6 +60,21 @@ class FaissStore:
         logger.info(f"Loading FAISS index from {index_path}")
         index = faiss.read_index(str(index_path))
 
+        # Auto-detect IVF / HNSW index and set search parameters for optimal speed
+        try:
+            from backend.app.config import get_settings
+            settings = get_settings()
+            nprobe = settings.faiss_nprobe
+        except Exception:
+            nprobe = 10
+
+        if hasattr(index, "nprobe"):
+            index.nprobe = nprobe
+            logger.info(f"IVF index detected — set nprobe={nprobe}")
+        elif hasattr(index, "hnsw"):
+            index.hnsw.efSearch = 64
+            logger.info("HNSW index detected — set efSearch=64")
+
         logger.info(f"Loading chunk metadata from {metadata_path}")
         chunks = []
         with open(metadata_path, "r", encoding="utf-8") as f:
