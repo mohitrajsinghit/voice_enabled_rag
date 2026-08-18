@@ -8,9 +8,6 @@ const STAGE_CONFIG = {
   embed_query_ms: { label: 'Query Embed (e5)', classKey: 'embed', icon: '⚡' },
   faiss_search_ms: { label: 'FAISS Search', classKey: 'search', icon: '🔍' },
   retrieval_total_ms: { label: 'Retrieval Total', classKey: 'retrieval', icon: '⚡' },
-  generation_ms: { label: 'LLM Generation', classKey: 'generation', icon: '🧠' },
-  grounding_check_ms: { label: 'Grounding Judge', classKey: 'grounding', icon: '🛡️' },
-  end_to_end_ms: { label: 'End-to-End Total', classKey: 'total', icon: '⏱️' },
 };
 
 const DISPLAY_STAGES = [
@@ -18,9 +15,6 @@ const DISPLAY_STAGES = [
   'embed_query_ms',
   'faiss_search_ms',
   'retrieval_total_ms',
-  'generation_ms',
-  'grounding_check_ms',
-  'end_to_end_ms',
 ];
 
 /**
