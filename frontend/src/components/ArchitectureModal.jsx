@@ -23,8 +23,8 @@ export default function ArchitectureModal({ onClose }) {
           </button>
         </div>
 
-        {/* Tab Navigation (5-Grid Segmented Control) */}
-        <div className="modal-tabs-nav" style={{ gridTemplateColumns: 'repeat(5, 1fr)' }}>
+        {/* Tab Navigation (Smooth scrollable segment bar) */}
+        <div className="modal-tabs-nav">
           <button
             className={`modal-tab-btn ${activeTab === 'pipeline' ? 'active' : ''}`}
             onClick={() => setActiveTab('pipeline')}

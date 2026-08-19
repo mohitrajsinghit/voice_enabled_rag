@@ -65,8 +65,9 @@ class LLMClient:
             if not self.api_key:
                 logger.warning("GOOGLE_API_KEY is not configured yet. Will check environment at query time.")
         else:
-            self.base_url = self.base_url or settings.lmstudio_base_url
-            self.model = self.model or settings.lmstudio_model
+            self.base_url = self.base_url or os.getenv("LMSTUDIO_BASE_URL", "") or settings.lmstudio_base_url
+            self.model = self.model or os.getenv("LMSTUDIO_MODEL", "") or settings.lmstudio_model
+            logger.info(f"Initialized local/remote OpenAI-compatible LLM client: base_url={self.base_url}, model={self.model}")
 
         self._anthropic_client = None
         self._openai_client = None
@@ -88,7 +89,7 @@ class LLMClient:
             self._openai_client = OpenAI(
                 base_url=self.base_url,
                 api_key="lm-studio",  # LM Studio doesn't need a real key
-                timeout=30.0,
+                timeout=120.0,
                 max_retries=1,
             )
         return self._openai_client
